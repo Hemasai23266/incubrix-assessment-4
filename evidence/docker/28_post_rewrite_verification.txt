@@ -1,0 +1,34 @@
+## verification after rewrite 2026-11-23T00:00:14+05:30
+-- host tests: 68 passed, 2 warnings in 4.65s
+-- docker tests: 68 passed, 2 warnings in 3.83s
+-- screenshots vs manifest:
+MATCH    evidence/certification/ghost/local-instance/screenshots/ghost_01_live_182453.png 58941 bytes
+MATCH    evidence/certification/ghost/local-instance/screenshots/ghost_02_after_delete_182459.png 12276 bytes
+MATCH    evidence/certification/lemmy/local-instance/screenshots/lemmy_01_live_182501.png 54951 bytes
+MATCH    evidence/certification/lemmy/local-instance/screenshots/lemmy_02_after_delete_182503.png 6257 bytes
+all four verified: True
+-- run records vs INDEX.md:
+   discourse mock            record=PASS  index='PASS (0.0527 s)' OK
+   discourse local-instance  record=None  index='not run' OK
+   lemmy     mock            record=PASS  index='PASS (0.0318 s)' OK
+   lemmy     local-instance  record=PASS  index='PASS (1.4212 s)' OK
+   devto     mock            record=PASS  index='PASS (0.0242 s)' OK
+   devto     local-instance  record=None  index='not run' OK
+   ghost     mock            record=PASS  index='PASS (0.0237 s)' OK
+   ghost     local-instance  record=PASS  index='PASS (1.7087 s)' OK
+   webhook   mock            record=PASS  index='PASS (0.0233 s)' OK
+   webhook   local-instance  record=None  index='not run' OK
+   assisted  assisted-flow   record=PASS  index='PASS (0.0083 s) — assisted flow, no platform contacted' OK
+   assisted  local-instance  record=None  index='n/a (no platform is called)' OK
+   agreement: True
+-- labels:
+   discourse mock: * **Environment:** MOCK (in-process mock platform, simulation mode)
+   lemmy mock: * **Environment:** MOCK (in-process mock platform, simulation mode)
+   devto mock: * **Environment:** MOCK (in-process mock platform, simulation mode)
+   ghost mock: * **Environment:** MOCK (in-process mock platform, simulation mode)
+   webhook mock: * **Environment:** MOCK (in-process mock platform, simulation mode)
+   assisted: * **Environment:** Assisted flow â€” no platform contacted
+   ghost local: * **Environment:** LOCAL INSTANCE (real software in docker c
+   lemmy local: * **Environment:** LOCAL INSTANCE (real software in docker c
+-- leftover now:
+   Ghost posts: ['Coming soon'] | Lemmy live posts: []

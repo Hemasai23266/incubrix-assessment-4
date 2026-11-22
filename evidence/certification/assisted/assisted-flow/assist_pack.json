@@ -1,0 +1,32 @@
+{
+  "files": [
+    {
+      "name": "post.txt",
+      "content_type": "text/plain",
+      "content": "IncuBrix launches multi-destination video publishing\n\nShort, honest post text for the community.\n\nhttps://incubrix.example/launch"
+    },
+    {
+      "name": "demo.png",
+      "content_type": "image/png",
+      "source_url": "https://incubrix.example/media/demo.png"
+    },
+    {
+      "name": "demo.mp4",
+      "content_type": "video/mp4",
+      "source_url": "https://incubrix.example/media/demo.mp4"
+    }
+  ],
+  "caption": "IncuBrix launches multi-destination video publishing",
+  "deep_link": "https://example.org/community/submit",
+  "checklist": [
+    "Open the community rules: https://example.org/community/rules",
+    "Confirm automated posting is not required: a person must post this manually.",
+    "Self-promotion allowed here: yes",
+    "Link policy: allowed",
+    "AI disclosure required: YES - include the disclosure line",
+    "Frequency cap: none recorded",
+    "Post using your own account; never use shared or fake accounts.",
+    "After posting, paste the live URL back into IncuBrix."
+  ],
+  "instructions": "Open deep_link, paste caption and post.txt, attach media, tick every checklist item, then post manually."
+}

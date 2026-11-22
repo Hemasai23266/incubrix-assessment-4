@@ -1,0 +1,13 @@
+sessions final: 0
+Revocation record (2026-11-22, local Ghost only): an owner session id had been captured in a committed evidence file (cookie header
+from a curl -i diagnosis). All rows of Ghost's `sessions` table were deleted (8 removed, count verified 0 BEFORE any new login), which
+invalidates that session without ever using or printing the cookie value. A later fresh login/logout test row was also deleted.
+Sessions table is empty; any future login creates a new session. Ghost integrations/admin API keys are unaffected.
+
+History rewrite record (local repository, never pushed; authorised by the owner):
+  rewritten commit : 4c8b43d  ->  c54ab4f   "Add Docker verification evidence: seed repeatability, real local posts, clean start"
+  descendants      : none (it was HEAD), so no other commit hash changed:
+                     a1e9b19 6d057c6 a536021 2f1468c 7669954 94070a5 62b65c5 6895516 8f457c5 are identical to before.
+  change           : one file, evidence/docker/04_ghost_seed_repeat_diagnosis.txt, cookie value replaced by [REDACTED].
+  purge            : reflog expired and `git gc --prune=now` run; the old commit object no longer exists; `git fsck --unreachable` = 0 objects.
+  scans            : evidence/docker/27_post_rewrite_secret_scan.txt, 28_post_rewrite_verification.txt

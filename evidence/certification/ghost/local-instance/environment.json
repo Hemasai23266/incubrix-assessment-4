@@ -1,0 +1,39 @@
+{
+  "connector": {
+    "key": "ghost",
+    "version": "1.0.0",
+    "tier": "native",
+    "auth": "api_key",
+    "capabilities": [
+      "publish",
+      "status",
+      "delete"
+    ],
+    "surface": "post"
+  },
+  "certification_environment": "LOCAL INSTANCE (real software in docker compose, simulation off)",
+  "target_platform_version": "Ghost 5.130",
+  "destination_row": {
+    "name": "Local Ghost (docker compose)",
+    "url": "http://localhost:2368",
+    "surface": "post",
+    "connector_key": "ghost",
+    "options": {
+      "base_url": "http://localhost:2368"
+    }
+  },
+  "run_started_utc": "2026-11-22T18:24:26.282046+00:00",
+  "run_finished_utc": "2026-11-22T18:24:28.262443+00:00",
+  "harness_duration_s": 1.7087,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L3",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:24:28.037824"
+  }
+}

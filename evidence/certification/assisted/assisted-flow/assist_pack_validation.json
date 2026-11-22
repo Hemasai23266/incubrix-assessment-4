@@ -1,0 +1,41 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "files[] present and includes the post text file",
+      "passed": true
+    },
+    {
+      "check": "one file entry per media item (2 media -> 3 files total)",
+      "passed": true
+    },
+    {
+      "check": "media entries keep filename, content type and source URL",
+      "passed": true
+    },
+    {
+      "check": "caption equals the post title",
+      "passed": true
+    },
+    {
+      "check": "deep_link is the destination's submit URL",
+      "passed": true
+    },
+    {
+      "check": "checklist has the rules link, promo, link-policy, AI-disclosure and cap items",
+      "passed": true
+    },
+    {
+      "check": "AI disclosure is flagged as REQUIRED in the checklist for this destination",
+      "passed": true
+    },
+    {
+      "check": "manual posting instructions present",
+      "passed": true
+    },
+    {
+      "check": "automated publish() is refused (assisted is not an automated connector)",
+      "passed": true
+    }
+  ]
+}

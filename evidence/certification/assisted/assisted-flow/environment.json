@@ -1,0 +1,38 @@
+{
+  "connector": {
+    "key": "assisted",
+    "version": "1.0.0",
+    "tier": "assisted",
+    "auth": "none",
+    "capabilities": [
+      "assist_pack"
+    ],
+    "surface": "manual_post"
+  },
+  "certification_environment": "Assisted flow — no platform contacted",
+  "target_platform_version": "mock (no real software)",
+  "destination_row": {
+    "name": "assisted certification target",
+    "url": "https://assisted.example",
+    "surface": "manual_post",
+    "connector_key": "assisted",
+    "automation_allowed": false,
+    "options": {
+      "submit_url": "https://example.org/community/submit"
+    }
+  },
+  "run_started_utc": "2026-11-22T18:29:34.343469+00:00",
+  "run_finished_utc": "2026-11-22T18:29:34.459716+00:00",
+  "harness_duration_s": 0.0083,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L1",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:29:34.415463"
+  }
+}

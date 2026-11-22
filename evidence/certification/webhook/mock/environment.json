@@ -1,0 +1,37 @@
+{
+  "connector": {
+    "key": "webhook",
+    "version": "1.0.0",
+    "tier": "bridge",
+    "auth": "none",
+    "capabilities": [
+      "publish",
+      "status",
+      "delete"
+    ],
+    "surface": "partner_post"
+  },
+  "certification_environment": "MOCK (in-process mock platform, simulation mode)",
+  "target_platform_version": "mock (no real software)",
+  "destination_row": {
+    "name": "webhook certification target",
+    "url": "https://webhook.example",
+    "surface": "partner_post",
+    "connector_key": "webhook",
+    "options": {}
+  },
+  "run_started_utc": "2026-11-22T18:24:21.753588+00:00",
+  "run_finished_utc": "2026-11-22T18:24:21.834099+00:00",
+  "harness_duration_s": 0.0233,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L3",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:24:21.796898"
+  }
+}

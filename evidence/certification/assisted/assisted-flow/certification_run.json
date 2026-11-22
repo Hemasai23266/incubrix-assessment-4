@@ -1,0 +1,59 @@
+{
+  "api_job": {
+    "job_id": "f4fa9f21ea1c4013984034a9aeac67f0",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "ccc3cda174f049b288a3b0d61dac14e6",
+      "status": "passed",
+      "destination_id": "57f3f0dc53cd4a5fbb6a013ac706ddb0",
+      "evidence_url": "http://cert.local/api/v1/files/certifications/57f3f0dc53cd4a5fbb6a013ac706ddb0/ccc3cda174f049b288a3b0d61dac14e6.json",
+      "duration_s": 0.0083,
+      "failure": null,
+      "steps": [
+        {
+          "step": "build_assist_pack",
+          "ok": true,
+          "seconds": 0.001,
+          "response": {
+            "files": 1,
+            "checklist_items": 8,
+            "deep_link": "https://example.org/community/submit"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/f4fa9f21ea1c4013984034a9aeac67f0",
+      "evidence": "http://cert.local/api/v1/files/certifications/57f3f0dc53cd4a5fbb6a013ac706ddb0/ccc3cda174f049b288a3b0d61dac14e6.json"
+    },
+    "created_at": "2026-11-22T18:29:34.393072",
+    "finished_at": "2026-11-22T18:29:34.418460"
+  },
+  "harness_evidence_file": {
+    "destination_id": "57f3f0dc53cd4a5fbb6a013ac706ddb0",
+    "destination": "assisted certification target",
+    "connector": "assisted",
+    "environment": "simulation",
+    "started_at": "2026-11-22T18:29:34.404597+00:00",
+    "steps": [
+      {
+        "step": "build_assist_pack",
+        "ok": true,
+        "seconds": 0.001,
+        "response": {
+          "files": 1,
+          "checklist_items": 8,
+          "deep_link": "https://example.org/community/submit"
+        }
+      }
+    ],
+    "status": "passed",
+    "failure": null,
+    "duration_s": 0.0083,
+    "finished_at": "2026-11-22T18:29:34.411859+00:00",
+    "live_urls_seen": []
+  }
+}

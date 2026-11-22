@@ -1,0 +1,133 @@
+{
+  "api_job": {
+    "job_id": "e197d7b02c5b40b3a16b02ae0c598022",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "a4af76c6e64d4075ac45d9d2ed589426",
+      "status": "passed",
+      "destination_id": "020f1887d8f748cca13cb60706d9a29d",
+      "evidence_url": "http://cert.local/api/v1/files/certifications/020f1887d8f748cca13cb60706d9a29d/a4af76c6e64d4075ac45d9d2ed589426.json",
+      "duration_s": 1.4212,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.6521,
+          "response": {
+            "platform_post_id": "9",
+            "live_url": "http://localhost:8536/post/9",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.228,
+          "response": {
+            "status": "published",
+            "live_url": "http://localhost:8536/post/9"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.2339,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.2951,
+          "response": {
+            "status": "deleted",
+            "live_url": "http://localhost:8536/post/9"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/e197d7b02c5b40b3a16b02ae0c598022",
+      "evidence": "http://cert.local/api/v1/files/certifications/020f1887d8f748cca13cb60706d9a29d/a4af76c6e64d4075ac45d9d2ed589426.json"
+    },
+    "created_at": "2026-11-22T18:24:28.336743",
+    "finished_at": "2026-11-22T18:24:29.771206"
+  },
+  "harness_evidence_file": {
+    "destination_id": "020f1887d8f748cca13cb60706d9a29d",
+    "destination": "Local Lemmy (docker compose)",
+    "connector": "lemmy",
+    "environment": "local-instance",
+    "started_at": "2026-11-22T18:24:28.343803+00:00",
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.6521,
+        "response": {
+          "platform_post_id": "9",
+          "live_url": "http://localhost:8536/post/9",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.228,
+        "response": {
+          "status": "published",
+          "live_url": "http://localhost:8536/post/9"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.2339,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.2951,
+        "response": {
+          "status": "deleted",
+          "live_url": "http://localhost:8536/post/9"
+        }
+      }
+    ],
+    "status": "passed",
+    "failure": null,
+    "duration_s": 1.4212,
+    "finished_at": "2026-11-22T18:24:29.764987+00:00",
+    "live_urls_seen": [
+      "http://localhost:8536/post/9",
+      "http://localhost:8536/post/9",
+      "http://localhost:8536/post/9"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "http_status": 422,
+  "body": {
+    "error": {
+      "code": "DEST_RULE_VIOLATION",
+      "message": "Automated posting is not permitted for assisted destinations; use build_assist_pack.",
+      "retryable": false,
+      "details": {
+        "destination": "assisted certification target"
+      }
+    }
+  }
+}

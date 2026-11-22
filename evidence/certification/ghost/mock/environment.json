@@ -1,0 +1,37 @@
+{
+  "connector": {
+    "key": "ghost",
+    "version": "1.0.0",
+    "tier": "native",
+    "auth": "api_key",
+    "capabilities": [
+      "publish",
+      "status",
+      "delete"
+    ],
+    "surface": "post"
+  },
+  "certification_environment": "MOCK (in-process mock platform, simulation mode)",
+  "target_platform_version": "mock (no real software)",
+  "destination_row": {
+    "name": "ghost certification target",
+    "url": "https://ghost.example",
+    "surface": "post",
+    "connector_key": "ghost",
+    "options": {}
+  },
+  "run_started_utc": "2026-11-22T18:24:21.625255+00:00",
+  "run_finished_utc": "2026-11-22T18:24:21.703285+00:00",
+  "harness_duration_s": 0.0237,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L3",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:24:21.668456"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "api_job": {
+    "job_id": "898f3f61e8a04e1bbc9f8f0276e5293d",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "801738ab25f14e77a2e1c7627376e0fe",
+      "status": "passed",
+      "destination_id": "fa89d04cd21c4290a9d7783361df43d2",
+      "evidence_url": "http://cert.local/api/v1/files/certifications/fa89d04cd21c4290a9d7783361df43d2/801738ab25f14e77a2e1c7627376e0fe.json",
+      "duration_s": 0.0237,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.0035,
+          "response": {
+            "platform_post_id": "ghost103",
+            "live_url": "http://ghost.sim/ghost103/",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.003,
+          "response": {
+            "status": "published",
+            "live_url": "http://ghost.sim/ghost103/"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.0031,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.0026,
+          "response": {
+            "status": "gone (404)"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/898f3f61e8a04e1bbc9f8f0276e5293d",
+      "evidence": "http://cert.local/api/v1/files/certifications/fa89d04cd21c4290a9d7783361df43d2/801738ab25f14e77a2e1c7627376e0fe.json"
+    },
+    "created_at": "2026-11-22T18:24:21.636726",
+    "finished_at": "2026-11-22T18:24:21.670302"
+  },
+  "harness_evidence_file": {
+    "destination_id": "fa89d04cd21c4290a9d7783361df43d2",
+    "destination": "ghost certification target",
+    "connector": "ghost",
+    "environment": "simulation",
+    "started_at": "2026-11-22T18:24:21.642746+00:00",
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.0035,
+        "response": {
+          "platform_post_id": "ghost103",
+          "live_url": "http://ghost.sim/ghost103/",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.003,
+        "response": {
+          "status": "published",
+          "live_url": "http://ghost.sim/ghost103/"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.0031,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.0026,
+        "response": {
+          "status": "gone (404)"
+        }
+      }
+    ],
+    "status": "passed",
+    "failure": null,
+    "duration_s": 0.0237,
+    "finished_at": "2026-11-22T18:24:21.666451+00:00",
+    "live_urls_seen": [
+      "http://ghost.sim/ghost103/",
+      "http://ghost.sim/ghost103/"
+    ]
+  }
+}

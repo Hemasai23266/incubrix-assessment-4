@@ -1,0 +1,42 @@
+{
+  "connector": {
+    "key": "lemmy",
+    "version": "1.0.0",
+    "tier": "native",
+    "auth": "api_key",
+    "capabilities": [
+      "publish",
+      "status",
+      "delete",
+      "metrics"
+    ],
+    "surface": "post"
+  },
+  "certification_environment": "LOCAL INSTANCE (real software in docker compose, simulation off)",
+  "target_platform_version": "Lemmy 0.19.5",
+  "destination_row": {
+    "name": "Local Lemmy (docker compose)",
+    "url": "http://localhost:8536",
+    "surface": "post",
+    "connector_key": "lemmy",
+    "options": {
+      "base_url": "http://localhost:8536",
+      "community": "incubrix_test",
+      "username": "incubrix"
+    }
+  },
+  "run_started_utc": "2026-11-22T18:24:28.326761+00:00",
+  "run_finished_utc": "2026-11-22T18:24:30.048425+00:00",
+  "harness_duration_s": 1.4212,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L3",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:24:29.766986"
+  }
+}

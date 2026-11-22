@@ -1,0 +1,46 @@
+{
+  "captured_utc": "2026-11-22T18:25:04.872000+00:00",
+  "tool": "headless Microsoft Edge",
+  "shots": [
+    {
+      "connector": "ghost",
+      "file": "ghost\\local-instance\\screenshots\\ghost_01_live_182453.png",
+      "what": "Ghost post as published on the local Ghost site (public page)",
+      "url_shown": "http://localhost:2368/incubrix-certification-screenshot-test-post/",
+      "platform_status": "published",
+      "bytes": 58941,
+      "sha256": "48501c36823be5a19a5dcf140c9ea98ce4da1d3c1466b6facfee289edc1497fa",
+      "captured_utc": "2026-11-22T18:25:04.843793+00:00"
+    },
+    {
+      "connector": "ghost",
+      "file": "ghost\\local-instance\\screenshots\\ghost_02_after_delete_182459.png",
+      "what": "the same Ghost URL after deletion (Ghost's not-found page)",
+      "url_shown": "http://localhost:2368/incubrix-certification-screenshot-test-post/",
+      "connector_status_after_delete": "gone (HTTP 404)",
+      "bytes": 12276,
+      "sha256": "7bef473a0f38e72c7a40fef3f566e2ae729b69905d752e97803f4faae035ec9c",
+      "captured_utc": "2026-11-22T18:25:04.852050+00:00"
+    },
+    {
+      "connector": "lemmy",
+      "file": "lemmy\\local-instance\\screenshots\\lemmy_01_live_182501.png",
+      "what": "Lemmy public API response for the post while live (no lemmy-ui in our compose; this is the API JSON)",
+      "url_shown": "http://localhost:8536/api/v3/post?id=10",
+      "platform_status": "published",
+      "bytes": 54951,
+      "sha256": "f0c1708780d135f2723d9cf8bb316a7c7e6ba6394d8490fc0603fa728e852a7c",
+      "captured_utc": "2026-11-22T18:25:04.862972+00:00"
+    },
+    {
+      "connector": "lemmy",
+      "file": "lemmy\\local-instance\\screenshots\\lemmy_02_after_delete_182503.png",
+      "what": "the same Lemmy API URL after deletion (anonymous request: post no longer retrievable)",
+      "url_shown": "http://localhost:8536/api/v3/post?id=10",
+      "connector_status_after_delete": "deleted",
+      "bytes": 6257,
+      "sha256": "ba10174d4274b64e5de3a8e11156ade75ed8f200f7902be8a2693f8c89c63e25",
+      "captured_utc": "2026-11-22T18:25:04.872000+00:00"
+    }
+  ]
+}

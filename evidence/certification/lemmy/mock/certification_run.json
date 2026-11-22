@@ -1,0 +1,133 @@
+{
+  "api_job": {
+    "job_id": "1705e19050824809ae7717c61e7761f5",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "cbf5b1a812f44600853b682bc099a6e7",
+      "status": "passed",
+      "destination_id": "8aeb58ddc7a34a2ead203b775a4f1dda",
+      "evidence_url": "http://cert.local/api/v1/files/certifications/8aeb58ddc7a34a2ead203b775a4f1dda/cbf5b1a812f44600853b682bc099a6e7.json",
+      "duration_s": 0.0318,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.0085,
+          "response": {
+            "platform_post_id": "101",
+            "live_url": "http://mock/lemmy/post/101",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.004,
+          "response": {
+            "status": "published",
+            "live_url": "http://mock/lemmy/post/101"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.003,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.003,
+          "response": {
+            "status": "deleted",
+            "live_url": "http://mock/lemmy/post/101"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/1705e19050824809ae7717c61e7761f5",
+      "evidence": "http://cert.local/api/v1/files/certifications/8aeb58ddc7a34a2ead203b775a4f1dda/cbf5b1a812f44600853b682bc099a6e7.json"
+    },
+    "created_at": "2026-11-22T18:24:21.360527",
+    "finished_at": "2026-11-22T18:24:21.407924"
+  },
+  "harness_evidence_file": {
+    "destination_id": "8aeb58ddc7a34a2ead203b775a4f1dda",
+    "destination": "lemmy certification target",
+    "connector": "lemmy",
+    "environment": "simulation",
+    "started_at": "2026-11-22T18:24:21.373043+00:00",
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.0085,
+        "response": {
+          "platform_post_id": "101",
+          "live_url": "http://mock/lemmy/post/101",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.004,
+        "response": {
+          "status": "published",
+          "live_url": "http://mock/lemmy/post/101"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.003,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.003,
+        "response": {
+          "status": "deleted",
+          "live_url": "http://mock/lemmy/post/101"
+        }
+      }
+    ],
+    "status": "passed",
+    "failure": null,
+    "duration_s": 0.0318,
+    "finished_at": "2026-11-22T18:24:21.403918+00:00",
+    "live_urls_seen": [
+      "http://mock/lemmy/post/101",
+      "http://mock/lemmy/post/101",
+      "http://mock/lemmy/post/101"
+    ]
+  }
+}

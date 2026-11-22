@@ -1,0 +1,40 @@
+{
+  "connector": {
+    "key": "lemmy",
+    "version": "1.0.0",
+    "tier": "native",
+    "auth": "api_key",
+    "capabilities": [
+      "publish",
+      "status",
+      "delete",
+      "metrics"
+    ],
+    "surface": "post"
+  },
+  "certification_environment": "MOCK (in-process mock platform, simulation mode)",
+  "target_platform_version": "mock (no real software)",
+  "destination_row": {
+    "name": "lemmy certification target",
+    "url": "https://lemmy.example",
+    "surface": "post",
+    "connector_key": "lemmy",
+    "options": {
+      "community": "incubrix_test"
+    }
+  },
+  "run_started_utc": "2026-11-22T18:24:21.345931+00:00",
+  "run_finished_utc": "2026-11-22T18:24:21.437016+00:00",
+  "harness_duration_s": 0.0318,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L3",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:24:21.404925"
+  }
+}

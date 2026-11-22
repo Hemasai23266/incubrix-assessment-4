@@ -1,0 +1,130 @@
+{
+  "api_job": {
+    "job_id": "b788f7f08e4b40b3abdce922e7eb1680",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "272b91701e734d31bd9fbe9a81cb7e32",
+      "status": "passed",
+      "destination_id": "b226dc5563a545608dc89db7024bb034",
+      "evidence_url": "http://cert.local/api/v1/files/certifications/b226dc5563a545608dc89db7024bb034/272b91701e734d31bd9fbe9a81cb7e32.json",
+      "duration_s": 0.0233,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.002,
+          "response": {
+            "platform_post_id": "104",
+            "live_url": "https://partner.example/partner-site/104",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.003,
+          "response": {
+            "status": "published",
+            "live_url": "https://partner.example/partner-site/104"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.003,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.002,
+          "response": {
+            "status": "gone (404)"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/b788f7f08e4b40b3abdce922e7eb1680",
+      "evidence": "http://cert.local/api/v1/files/certifications/b226dc5563a545608dc89db7024bb034/272b91701e734d31bd9fbe9a81cb7e32.json"
+    },
+    "created_at": "2026-11-22T18:24:21.763604",
+    "finished_at": "2026-11-22T18:24:21.799410"
+  },
+  "harness_evidence_file": {
+    "destination_id": "b226dc5563a545608dc89db7024bb034",
+    "destination": "webhook certification target",
+    "connector": "webhook",
+    "environment": "simulation",
+    "started_at": "2026-11-22T18:24:21.771610+00:00",
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.002,
+        "response": {
+          "platform_post_id": "104",
+          "live_url": "https://partner.example/partner-site/104",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.003,
+        "response": {
+          "status": "published",
+          "live_url": "https://partner.example/partner-site/104"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.003,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.002,
+        "response": {
+          "status": "gone (404)"
+        }
+      }
+    ],
+    "status": "passed",
+    "failure": null,
+    "duration_s": 0.0233,
+    "finished_at": "2026-11-22T18:24:21.794895+00:00",
+    "live_urls_seen": [
+      "https://partner.example/partner-site/104",
+      "https://partner.example/partner-site/104"
+    ]
+  }
+}

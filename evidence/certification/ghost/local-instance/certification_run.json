@@ -1,0 +1,130 @@
+{
+  "api_job": {
+    "job_id": "17000fdb8ec3462f953ed2152fc09a9d",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "1eb8ae46b58c4b47b958556da1a9ed8c",
+      "status": "passed",
+      "destination_id": "abb5754c015a4644814dcb2a3e47a147",
+      "evidence_url": "http://cert.local/api/v1/files/certifications/abb5754c015a4644814dcb2a3e47a147/1eb8ae46b58c4b47b958556da1a9ed8c.json",
+      "duration_s": 1.7087,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.9736,
+          "response": {
+            "platform_post_id": "6b03335b04d9640001829746",
+            "live_url": "http://localhost:2368/incubrix-certification-test-post-1795371866/",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.2559,
+          "response": {
+            "status": "published",
+            "live_url": "http://localhost:2368/incubrix-certification-test-post-1795371866/"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.2493,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.2148,
+          "response": {
+            "status": "gone (404)"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/17000fdb8ec3462f953ed2152fc09a9d",
+      "evidence": "http://cert.local/api/v1/files/certifications/abb5754c015a4644814dcb2a3e47a147/1eb8ae46b58c4b47b958556da1a9ed8c.json"
+    },
+    "created_at": "2026-11-22T18:24:26.319229",
+    "finished_at": "2026-11-22T18:24:28.041357"
+  },
+  "harness_evidence_file": {
+    "destination_id": "abb5754c015a4644814dcb2a3e47a147",
+    "destination": "Local Ghost (docker compose)",
+    "connector": "ghost",
+    "environment": "local-instance",
+    "started_at": "2026-11-22T18:24:26.327516+00:00",
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.9736,
+        "response": {
+          "platform_post_id": "6b03335b04d9640001829746",
+          "live_url": "http://localhost:2368/incubrix-certification-test-post-1795371866/",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.2559,
+        "response": {
+          "status": "published",
+          "live_url": "http://localhost:2368/incubrix-certification-test-post-1795371866/"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.2493,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.2148,
+        "response": {
+          "status": "gone (404)"
+        }
+      }
+    ],
+    "status": "passed",
+    "failure": null,
+    "duration_s": 1.7087,
+    "finished_at": "2026-11-22T18:24:28.035225+00:00",
+    "live_urls_seen": [
+      "http://localhost:2368/incubrix-certification-test-post-1795371866/",
+      "http://localhost:2368/incubrix-certification-test-post-1795371866/"
+    ]
+  }
+}

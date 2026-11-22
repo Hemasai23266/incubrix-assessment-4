@@ -1,0 +1,33 @@
+{
+  "note": "posts_left counts records that are still live (not deleted/unpublished). 0 everywhere = every test post was cleaned up.",
+  "state": {
+    "discourse": {
+      "posts_left": 0,
+      "records_total": 1
+    },
+    "discourse-b": {
+      "posts_left": 0,
+      "records_total": 0
+    },
+    "lemmy": {
+      "posts_left": 0,
+      "records_total": 1
+    },
+    "devto": {
+      "posts_left": 0,
+      "records_total": 1
+    },
+    "ghost": {
+      "posts_left": 0,
+      "records_total": 0
+    },
+    "partner-site": {
+      "posts_left": 0,
+      "records_total": 0
+    },
+    "partner-site-b": {
+      "posts_left": 0,
+      "records_total": 0
+    }
+  }
+}

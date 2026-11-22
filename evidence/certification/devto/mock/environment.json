@@ -1,0 +1,38 @@
+{
+  "connector": {
+    "key": "devto",
+    "version": "1.0.0",
+    "tier": "native",
+    "auth": "api_key",
+    "capabilities": [
+      "publish",
+      "status",
+      "delete",
+      "metrics"
+    ],
+    "surface": "article"
+  },
+  "certification_environment": "MOCK (in-process mock platform, simulation mode)",
+  "target_platform_version": "mock (no real software)",
+  "destination_row": {
+    "name": "devto certification target",
+    "url": "https://devto.example",
+    "surface": "article",
+    "connector_key": "devto",
+    "options": {}
+  },
+  "run_started_utc": "2026-11-22T18:24:21.492756+00:00",
+  "run_finished_utc": "2026-11-22T18:24:21.576584+00:00",
+  "harness_duration_s": 0.0242,
+  "code_commit": "4c8b43d",
+  "host": {
+    "python": "3.11.9",
+    "os": "Windows-10-10.0.26100-SP0"
+  },
+  "destination_after": {
+    "certified": true,
+    "level": "L3",
+    "status": "active",
+    "last_certified_at": "2026-11-22T18:24:21.536997"
+  }
+}
