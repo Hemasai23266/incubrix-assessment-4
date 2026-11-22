@@ -1,0 +1,84 @@
+{
+  "name": "01_discourse_publish",
+  "action": "publish",
+  "destination_response": {
+    "id": "662b82be4f294159a143a81e942df3be",
+    "name": "Sample Discourse",
+    "url": "https://sample-discourse.example",
+    "platform_key": "discourse",
+    "surface": "topic",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "discourse",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {},
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "708e4df4ebe14feeaa72d0fa7f3d8aa7",
+    "kind": "publish",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "status": "published",
+      "platform_post_id": "100",
+      "live_url": "http://mock/discourse/t/t-100/100",
+      "replayed": false,
+      "manifest": {
+        "connector": {
+          "key": "discourse",
+          "version": "1.0.0",
+          "tier": "native"
+        },
+        "providers": [
+          {
+            "name": "mock-platform",
+            "mode": "simulation"
+          }
+        ],
+        "settings": {
+          "simulation_mode": true,
+          "job_backend": "rq"
+        },
+        "seed": null,
+        "timings": {
+          "total_s": 0.3938
+        },
+        "cost_estimate_usd": 0.0,
+        "warnings": [
+          "destination is not certified yet; run POST /api/v1/destinations/{id}/certify"
+        ],
+        "rights": {
+          "licence": "content supplied by the submitter; IncuBrix adds no third-party media",
+          "ai_generated": false,
+          "disclosure_included": false
+        }
+      }
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/708e4df4ebe14feeaa72d0fa7f3d8aa7"
+    },
+    "created_at": "2026-11-22T17:38:58.761398+00:00",
+    "finished_at": "2026-11-22T17:38:59.317741+00:00"
+  },
+  "status": "succeeded",
+  "expect": "succeeded",
+  "ok": true
+}

@@ -1,0 +1,70 @@
+{
+  "name": "10_ai_disclosure_missing",
+  "action": "publish",
+  "destination_response": {
+    "id": "0213e892d2284f6286ec8e423d70c281",
+    "name": "Disclosure Forum",
+    "url": "https://disclosure-forum.example",
+    "platform_key": "discourse",
+    "surface": "topic",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": true,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "discourse",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {},
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "4f936aa08bfd4525b0f28f2b9fdf4798",
+    "kind": "publish",
+    "status": "failed",
+    "progress": 100,
+    "result": {
+      "status": "blocked",
+      "reason": "'Disclosure Forum' requires AI-content disclosure; add: \"This content was created with AI assistance.\" (rendition.disclosure)."
+    },
+    "error": {
+      "code": "DEST_RULE_VIOLATION",
+      "message": "'Disclosure Forum' requires AI-content disclosure; add: \"This content was created with AI assistance.\" (rendition.disclosure).",
+      "retryable": false,
+      "details": {
+        "verdict": {
+          "action": "block",
+          "violations": [
+            {
+              "rule": "ai_disclosure",
+              "action": "block",
+              "reason": "'Disclosure Forum' requires AI-content disclosure; add: \"This content was created with AI assistance.\" (rendition.disclosure)."
+            }
+          ],
+          "reschedule_at": null
+        },
+        "reschedule_at": null
+      }
+    },
+    "links": {
+      "self": "/api/v1/jobs/4f936aa08bfd4525b0f28f2b9fdf4798"
+    },
+    "created_at": "2026-11-22T17:39:08.505851+00:00",
+    "finished_at": "2026-11-22T17:39:08.620105+00:00"
+  },
+  "status": "failed",
+  "expect": "failed:DEST_RULE_VIOLATION",
+  "ok": true
+}

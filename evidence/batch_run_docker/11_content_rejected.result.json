@@ -1,0 +1,57 @@
+{
+  "name": "11_content_rejected",
+  "action": "publish",
+  "destination_response": {
+    "id": "3761c249a92742639db65cea08228d9f",
+    "name": "Rejecting Devto",
+    "url": "https://rejecting-devto.example",
+    "platform_key": "devto",
+    "surface": "article",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "devto",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {},
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "ce5825483f564fcca13c733b58ec930f",
+    "kind": "publish",
+    "status": "failed",
+    "progress": 100,
+    "result": null,
+    "error": {
+      "code": "PLATFORM_CONTENT_REJECTED",
+      "message": "Title contains content that is not allowed",
+      "retryable": false,
+      "details": {
+        "platform_status": 422,
+        "platform_message": "Title contains content that is not allowed"
+      }
+    },
+    "links": {
+      "self": "/api/v1/jobs/ce5825483f564fcca13c733b58ec930f"
+    },
+    "created_at": "2026-11-22T17:39:09.142330+00:00",
+    "finished_at": "2026-11-22T17:39:09.563879+00:00"
+  },
+  "status": "failed",
+  "expect": "failed:PLATFORM_CONTENT_REJECTED",
+  "ok": true
+}

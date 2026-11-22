@@ -1,0 +1,107 @@
+[
+  {
+    "destination": "Local Ghost",
+    "job_status": "succeeded",
+    "error": null,
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.5954,
+        "response": {
+          "platform_post_id": "6b0329339453ce000162ec35",
+          "live_url": "http://localhost:2368/incubrix-certification-test-post-1795369266/",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.4638,
+        "response": {
+          "status": "published",
+          "live_url": "http://localhost:2368/incubrix-certification-test-post-1795369266/"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.4885,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.2979,
+        "response": {
+          "status": "gone (404)"
+        }
+      }
+    ],
+    "duration_s": 1.8833
+  },
+  {
+    "destination": "Local Lemmy (incubrix_test)",
+    "job_status": "succeeded",
+    "error": null,
+    "steps": [
+      {
+        "step": "validate",
+        "ok": true,
+        "seconds": 0.0,
+        "response": {
+          "ok": true,
+          "violations": []
+        }
+      },
+      {
+        "step": "publish",
+        "ok": true,
+        "seconds": 0.744,
+        "response": {
+          "platform_post_id": "5",
+          "live_url": "http://localhost:8536/post/5",
+          "status": "published"
+        }
+      },
+      {
+        "step": "get_status_live",
+        "ok": true,
+        "seconds": 0.252,
+        "response": {
+          "status": "published",
+          "live_url": "http://localhost:8536/post/5"
+        }
+      },
+      {
+        "step": "delete",
+        "ok": true,
+        "seconds": 0.2795,
+        "response": {
+          "deleted": true
+        }
+      },
+      {
+        "step": "verify_deleted",
+        "ok": true,
+        "seconds": 0.3359,
+        "response": {
+          "status": "deleted",
+          "live_url": "http://localhost:8536/post/5"
+        }
+      }
+    ],
+    "duration_s": 1.6284
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "job": {
+    "job_id": "d57b16e36597433abd23c1e84d612ccf",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "8099579dc5784c16a61201b0a32d7359",
+      "status": "passed",
+      "destination_id": "c47b37bf54c94e7ba6c0c555930cb887",
+      "evidence_url": "http://localhost:8000/api/v1/files/certifications/c47b37bf54c94e7ba6c0c555930cb887/8099579dc5784c16a61201b0a32d7359.json",
+      "duration_s": 1.6284,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.744,
+          "response": {
+            "platform_post_id": "5",
+            "live_url": "http://localhost:8536/post/5",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.252,
+          "response": {
+            "status": "published",
+            "live_url": "http://localhost:8536/post/5"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.2795,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.3359,
+          "response": {
+            "status": "deleted",
+            "live_url": "http://localhost:8536/post/5"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/d57b16e36597433abd23c1e84d612ccf",
+      "evidence": "http://localhost:8000/api/v1/files/certifications/c47b37bf54c94e7ba6c0c555930cb887/8099579dc5784c16a61201b0a32d7359.json"
+    },
+    "created_at": "2026-11-22T17:41:08.643487",
+    "finished_at": "2026-11-22T17:41:10.287349"
+  }
+}

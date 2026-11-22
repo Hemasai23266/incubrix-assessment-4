@@ -1,0 +1,89 @@
+{
+  "violations_caught": 7,
+  "violations_missed": 0,
+  "false_positives": 0,
+  "legitimate_allowed": 9,
+  "total_cases": 16,
+  "cases": [
+    {
+      "case": "promo to no-promo",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "case": "promo to promo-ok",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "non-promo to no-promo",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "link to links-forbidden (body)",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "case": "link to links-forbidden (link field)",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "case": "no link to links-forbidden",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "2 links to max:1",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "case": "1 link to max:1",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "same link twice to max:1",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "AI content, disclosure required, none given",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "case": "AI content, disclosure given",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "AI disclosure inside body text",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "human content, disclosure required",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "AI content, disclosure not required",
+      "expected": "allow",
+      "actual": "allow"
+    },
+    {
+      "case": "automation forbidden on native connector",
+      "expected": "block",
+      "actual": "block"
+    },
+    {
+      "case": "promo + links-forbidden + ai (all three)",
+      "expected": "block",
+      "actual": "block"
+    }
+  ]
+}

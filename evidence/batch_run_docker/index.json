@@ -1,0 +1,79 @@
+{
+  "run_id": "1795369138",
+  "total": 12,
+  "passed": 12,
+  "cases": [
+    {
+      "input": "01_discourse_publish.json",
+      "result": "01_discourse_publish.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "02_lemmy_publish.json",
+      "result": "02_lemmy_publish.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "03_devto_publish.json",
+      "result": "03_devto_publish.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "04_ghost_publish.json",
+      "result": "04_ghost_publish.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "05_webhook_publish.json",
+      "result": "05_webhook_publish.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "06_assisted_pack.json",
+      "result": "06_assisted_pack.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "07_certify_discourse.json",
+      "result": "07_certify_discourse.result.json",
+      "status": "succeeded",
+      "ok": true
+    },
+    {
+      "input": "08_title_too_long.json",
+      "result": "08_title_too_long.result.json",
+      "status": "failed",
+      "ok": true
+    },
+    {
+      "input": "09_promo_blocked.json",
+      "result": "09_promo_blocked.result.json",
+      "status": "failed",
+      "ok": true
+    },
+    {
+      "input": "10_ai_disclosure_missing.json",
+      "result": "10_ai_disclosure_missing.result.json",
+      "status": "failed",
+      "ok": true
+    },
+    {
+      "input": "11_content_rejected.json",
+      "result": "11_content_rejected.result.json",
+      "status": "failed",
+      "ok": true
+    },
+    {
+      "input": "12_non_english.json",
+      "result": "12_non_english.result.json",
+      "status": "succeeded",
+      "ok": true
+    }
+  ]
+}

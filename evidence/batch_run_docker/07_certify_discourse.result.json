@@ -1,0 +1,104 @@
+{
+  "name": "07_certify_discourse",
+  "action": "certify",
+  "destination_response": {
+    "id": "c1cba6a103704008be40473ec7d180aa",
+    "name": "Cert Discourse",
+    "url": "https://cert-discourse.example",
+    "platform_key": "discourse",
+    "surface": "topic",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "discourse",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {},
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "2959f74c9b4e4966b406adb594b306b3",
+    "kind": "certify",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "certification_id": "3a0167aef92b43fa81f20171d2c28e15",
+      "status": "passed",
+      "destination_id": "c1cba6a103704008be40473ec7d180aa",
+      "evidence_url": "http://localhost:8000/api/v1/files/certifications/c1cba6a103704008be40473ec7d180aa/3a0167aef92b43fa81f20171d2c28e15.json",
+      "duration_s": 0.6503,
+      "failure": null,
+      "steps": [
+        {
+          "step": "validate",
+          "ok": true,
+          "seconds": 0.0,
+          "response": {
+            "ok": true,
+            "violations": []
+          }
+        },
+        {
+          "step": "publish",
+          "ok": true,
+          "seconds": 0.5957,
+          "response": {
+            "platform_post_id": "100",
+            "live_url": "http://mock/discourse/t/t-100/100",
+            "status": "published"
+          }
+        },
+        {
+          "step": "get_status_live",
+          "ok": true,
+          "seconds": 0.0059,
+          "response": {
+            "status": "published",
+            "live_url": "http://mock/discourse/t/t-100/100"
+          }
+        },
+        {
+          "step": "delete",
+          "ok": true,
+          "seconds": 0.0042,
+          "response": {
+            "deleted": true
+          }
+        },
+        {
+          "step": "verify_deleted",
+          "ok": true,
+          "seconds": 0.0044,
+          "response": {
+            "status": "deleted",
+            "live_url": "http://mock/discourse/t/t-100/100"
+          }
+        }
+      ]
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/2959f74c9b4e4966b406adb594b306b3",
+      "evidence": "http://localhost:8000/api/v1/files/certifications/c1cba6a103704008be40473ec7d180aa/3a0167aef92b43fa81f20171d2c28e15.json"
+    },
+    "created_at": "2026-11-22T17:39:05.575857+00:00",
+    "finished_at": "2026-11-22T17:39:06.700190+00:00"
+  },
+  "status": "succeeded",
+  "expect": "succeeded",
+  "ok": true
+}

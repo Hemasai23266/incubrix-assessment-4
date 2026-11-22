@@ -1,0 +1,110 @@
+{
+  "name": "06_assisted_pack",
+  "action": "publish",
+  "destination_response": {
+    "id": "79d2a3d6884b4f35bda1d36f7a510113",
+    "name": "Sample Manual Community",
+    "url": "https://sample-manual-community.example",
+    "platform_key": "assisted",
+    "surface": "manual_post",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "https://example.org/rules",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": false,
+    "connector_key": "assisted",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {
+      "submit_url": "https://example.org/submit"
+    },
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "73a888e4d20449f992e25fdab6e62ecb",
+    "kind": "publish",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "status": "assist_pack_ready",
+      "platform_post_id": "assist:0bb4f0a4f0a4fb7826d142349e0442b0",
+      "live_url": "",
+      "assist_pack": {
+        "files": [
+          {
+            "name": "post.txt",
+            "content_type": "text/plain",
+            "content": "Shipping our new video workflow today\n\nWe built a faster way to publish video to many communities.\n\nNone"
+          }
+        ],
+        "caption": "Shipping our new video workflow today",
+        "deep_link": "https://example.org/submit",
+        "checklist": [
+          "Open the community rules: https://example.org/rules",
+          "Confirm automated posting is not required: a person must post this manually.",
+          "Self-promotion allowed here: yes",
+          "Link policy: allowed",
+          "AI disclosure required: no",
+          "Frequency cap: none recorded",
+          "Post using your own account; never use shared or fake accounts.",
+          "After posting, paste the live URL back into IncuBrix."
+        ],
+        "instructions": "Open deep_link, paste caption and post.txt, attach media, tick every checklist item, then post manually."
+      },
+      "download_url": "http://localhost:8000/api/v1/files/assist-packs/0bb4f0a4f0a4fb7826d142349e0442b0.json",
+      "manifest": {
+        "connector": {
+          "key": "assisted",
+          "version": "1.0.0",
+          "tier": "assisted"
+        },
+        "providers": [
+          {
+            "name": "mock-platform",
+            "mode": "simulation"
+          }
+        ],
+        "settings": {
+          "simulation_mode": true,
+          "job_backend": "rq"
+        },
+        "seed": null,
+        "timings": {
+          "total_s": 0.5956
+        },
+        "cost_estimate_usd": 0.0,
+        "warnings": [
+          "destination is not certified yet; run POST /api/v1/destinations/{id}/certify",
+          "a person must post manually"
+        ],
+        "rights": {
+          "licence": "content supplied by the submitter; IncuBrix adds no third-party media",
+          "ai_generated": false,
+          "disclosure_included": false
+        }
+      }
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/73a888e4d20449f992e25fdab6e62ecb",
+      "download": "http://localhost:8000/api/v1/files/assist-packs/0bb4f0a4f0a4fb7826d142349e0442b0.json"
+    },
+    "created_at": "2026-11-22T17:39:04.483614+00:00",
+    "finished_at": "2026-11-22T17:39:05.210828+00:00"
+  },
+  "status": "succeeded",
+  "expect": "succeeded",
+  "ok": true
+}

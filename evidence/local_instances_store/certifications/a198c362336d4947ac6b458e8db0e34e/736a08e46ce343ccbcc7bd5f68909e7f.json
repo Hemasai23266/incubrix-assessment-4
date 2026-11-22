@@ -1,0 +1,63 @@
+{
+  "destination_id": "a198c362336d4947ac6b458e8db0e34e",
+  "destination": "Local Lemmy (incubrix_test)",
+  "connector": "lemmy",
+  "environment": "local-instance",
+  "started_at": "2026-11-22T17:40:23.518667+00:00",
+  "steps": [
+    {
+      "step": "validate",
+      "ok": true,
+      "seconds": 0.0,
+      "response": {
+        "ok": true,
+        "violations": []
+      }
+    },
+    {
+      "step": "publish",
+      "ok": true,
+      "seconds": 0.6813,
+      "response": {
+        "platform_post_id": "1",
+        "live_url": "http://localhost:8536/post/1",
+        "status": "published"
+      }
+    },
+    {
+      "step": "get_status_live",
+      "ok": true,
+      "seconds": 0.4911,
+      "response": {
+        "status": "published",
+        "live_url": "http://localhost:8536/post/1"
+      }
+    },
+    {
+      "step": "delete",
+      "ok": true,
+      "seconds": 0.6685,
+      "response": {
+        "deleted": true
+      }
+    },
+    {
+      "step": "verify_deleted",
+      "ok": true,
+      "seconds": 0.9249,
+      "response": {
+        "status": "deleted",
+        "live_url": "http://localhost:8536/post/1"
+      }
+    }
+  ],
+  "status": "passed",
+  "failure": null,
+  "duration_s": 2.7822,
+  "finished_at": "2026-11-22T17:40:26.300862+00:00",
+  "live_urls_seen": [
+    "http://localhost:8536/post/1",
+    "http://localhost:8536/post/1",
+    "http://localhost:8536/post/1"
+  ]
+}

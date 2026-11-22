@@ -1,0 +1,84 @@
+{
+  "name": "05_webhook_publish",
+  "action": "publish",
+  "destination_response": {
+    "id": "79972fd1e3f442438583ee2772b80701",
+    "name": "Sample Partner",
+    "url": "https://sample-partner.example",
+    "platform_key": "webhook",
+    "surface": "partner_post",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "webhook",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {},
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "2d3800708bed48aca683f533f3a97069",
+    "kind": "publish",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "status": "published",
+      "platform_post_id": "100",
+      "live_url": "https://partner.example/partner-site/100",
+      "replayed": false,
+      "manifest": {
+        "connector": {
+          "key": "webhook",
+          "version": "1.0.0",
+          "tier": "bridge"
+        },
+        "providers": [
+          {
+            "name": "mock-platform",
+            "mode": "simulation"
+          }
+        ],
+        "settings": {
+          "simulation_mode": true,
+          "job_backend": "rq"
+        },
+        "seed": null,
+        "timings": {
+          "total_s": 0.5043
+        },
+        "cost_estimate_usd": 0.0,
+        "warnings": [
+          "destination is not certified yet; run POST /api/v1/destinations/{id}/certify"
+        ],
+        "rights": {
+          "licence": "content supplied by the submitter; IncuBrix adds no third-party media",
+          "ai_generated": false,
+          "disclosure_included": false
+        }
+      }
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/2d3800708bed48aca683f533f3a97069"
+    },
+    "created_at": "2026-11-22T17:39:03.343120+00:00",
+    "finished_at": "2026-11-22T17:39:03.967287+00:00"
+  },
+  "status": "succeeded",
+  "expect": "succeeded",
+  "ok": true
+}

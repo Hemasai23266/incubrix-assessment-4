@@ -1,0 +1,72 @@
+{
+  "name": "09_promo_blocked",
+  "action": "publish",
+  "destination_response": {
+    "id": "ebaea7e06f4f428a83b2c6e33797d73c",
+    "name": "No Promo Lemmy",
+    "url": "https://no-promo-lemmy.example",
+    "platform_key": "lemmy",
+    "surface": "post",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": false,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "lemmy",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {
+      "community": "x"
+    },
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "817260686aa84b2e84dfac809ecb0d38",
+    "kind": "publish",
+    "status": "failed",
+    "progress": 100,
+    "result": {
+      "status": "blocked",
+      "reason": "'No Promo Lemmy' does not allow self-promotion; this post is marked promotional."
+    },
+    "error": {
+      "code": "DEST_RULE_VIOLATION",
+      "message": "'No Promo Lemmy' does not allow self-promotion; this post is marked promotional.",
+      "retryable": false,
+      "details": {
+        "verdict": {
+          "action": "block",
+          "violations": [
+            {
+              "rule": "self_promotion",
+              "action": "block",
+              "reason": "'No Promo Lemmy' does not allow self-promotion; this post is marked promotional."
+            }
+          ],
+          "reschedule_at": null
+        },
+        "reschedule_at": null
+      }
+    },
+    "links": {
+      "self": "/api/v1/jobs/817260686aa84b2e84dfac809ecb0d38"
+    },
+    "created_at": "2026-11-22T17:39:07.858997+00:00",
+    "finished_at": "2026-11-22T17:39:08.054996+00:00"
+  },
+  "status": "failed",
+  "expect": "failed:DEST_RULE_VIOLATION",
+  "ok": true
+}

@@ -1,0 +1,75 @@
+{
+  "destination_id": "f675f6e9778f4b03b23ef29e41c9039e",
+  "destination": "Local Lemmy (incubrix_test)",
+  "connector": "lemmy",
+  "environment": "local-instance",
+  "started_at": "2026-11-22T17:40:39.833605+00:00",
+  "steps": [
+    {
+      "step": "validate",
+      "ok": true,
+      "seconds": 0.0,
+      "response": {
+        "ok": true,
+        "violations": []
+      }
+    },
+    {
+      "step": "publish",
+      "ok": true,
+      "seconds": 0.7248,
+      "response": {
+        "platform_post_id": "2",
+        "live_url": "http://localhost:8536/post/2",
+        "status": "published"
+      }
+    },
+    {
+      "step": "get_status_live",
+      "ok": true,
+      "seconds": 0.6597,
+      "response": {
+        "status": "published",
+        "live_url": "http://localhost:8536/post/2"
+      }
+    },
+    {
+      "step": "delete",
+      "ok": true,
+      "seconds": 0.8716,
+      "response": {
+        "deleted": true
+      }
+    },
+    {
+      "step": "verify_deleted",
+      "ok": false,
+      "seconds": 0.6143,
+      "error": {
+        "code": "PLATFORM_CONTENT_REJECTED",
+        "message": "unknown",
+        "retryable": false,
+        "details": {
+          "platform_status": 400,
+          "platform_message": "unknown"
+        }
+      }
+    }
+  ],
+  "status": "failed",
+  "failure": {
+    "code": "PLATFORM_CONTENT_REJECTED",
+    "message": "unknown",
+    "retryable": false,
+    "details": {
+      "platform_status": 400,
+      "platform_message": "unknown"
+    }
+  },
+  "duration_s": 2.8795,
+  "finished_at": "2026-11-22T17:40:42.713077+00:00",
+  "live_urls_seen": [
+    "http://localhost:8536/post/2",
+    "http://localhost:8536/post/2"
+  ]
+}

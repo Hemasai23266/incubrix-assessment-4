@@ -1,0 +1,86 @@
+{
+  "name": "02_lemmy_publish",
+  "action": "publish",
+  "destination_response": {
+    "id": "0ed594c44ddd4eb68df89a3ce727f5f7",
+    "name": "Sample Lemmy",
+    "url": "https://sample-lemmy.example",
+    "platform_key": "lemmy",
+    "surface": "post",
+    "category": "",
+    "audience_tags": [],
+    "language": "en",
+    "geo": "global",
+    "est_audience": 0,
+    "rules_url": "",
+    "frequency_cap": {},
+    "self_promo_allowed": true,
+    "link_policy": "allowed",
+    "disclosure_required": false,
+    "disclosure_text": "This content was created with AI assistance.",
+    "automation_allowed": true,
+    "connector_key": "lemmy",
+    "relevance_score": null,
+    "relevance_reason": "",
+    "level": "L0",
+    "status": "active",
+    "credentials_ref": "",
+    "options": {
+      "community": "incubrix_test"
+    },
+    "certified": false,
+    "last_certified_at": null
+  },
+  "submit_status_code": 202,
+  "job": {
+    "job_id": "2bc847e6cdc148e696f25931fe91008f",
+    "kind": "publish",
+    "status": "succeeded",
+    "progress": 100,
+    "result": {
+      "status": "published",
+      "platform_post_id": "100",
+      "live_url": "http://mock/lemmy/post/100",
+      "replayed": false,
+      "manifest": {
+        "connector": {
+          "key": "lemmy",
+          "version": "1.0.0",
+          "tier": "native"
+        },
+        "providers": [
+          {
+            "name": "mock-platform",
+            "mode": "simulation"
+          }
+        ],
+        "settings": {
+          "simulation_mode": true,
+          "job_backend": "rq"
+        },
+        "seed": null,
+        "timings": {
+          "total_s": 0.545
+        },
+        "cost_estimate_usd": 0.0,
+        "warnings": [
+          "destination is not certified yet; run POST /api/v1/destinations/{id}/certify"
+        ],
+        "rights": {
+          "licence": "content supplied by the submitter; IncuBrix adds no third-party media",
+          "ai_generated": false,
+          "disclosure_included": false
+        }
+      }
+    },
+    "error": null,
+    "links": {
+      "self": "/api/v1/jobs/2bc847e6cdc148e696f25931fe91008f"
+    },
+    "created_at": "2026-11-22T17:38:59.926522+00:00",
+    "finished_at": "2026-11-22T17:39:00.605280+00:00"
+  },
+  "status": "succeeded",
+  "expect": "succeeded",
+  "ok": true
+}
