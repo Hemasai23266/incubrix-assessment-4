@@ -1,0 +1,43 @@
+## new smoke_test_deployed.py vs a LOCAL demo container, launched the instant the container started (cold start: port open before the server is up, seed still running); token via INCUBRIX_API_TOKEN, never printed
+      ... service not answering yet (ReadError); waiting for it to start
+PASS  GET /health (cold-start wait included)  [3.1 s]
+PASS  GET /ready: simulation mode, database/redis/storage ok  [mode=simulation {'database': 'ok', 'redis': 'ok', 'storage': 'ok'}]
+PASS  no token -> 401 error envelope
+PASS  token accepted by the API
+PASS  demo catalogue present  [12/12 demo destinations]
+PASS  POST /publish -> 202 + job_id  [HTTP 202]
+PASS  job succeeded with output manifest  [succeeded]
+PASS  same Idempotency-Key -> same job
+PASS  certification job (publish->status->delete->verify, MOCK platform)  [succeeded]
+PASS  over-long title -> DEST_SPEC_VIOLATION  [DEST_SPEC_VIOLATION]
+PASS  unsafe callback_url (cloud metadata address) -> 422 CALLBACK_URL_REJECTED  [HTTP 422 CALLBACK_URL_REJECTED]
+PASS  file upload + download  [HTTP 201]
+
+ALL PASSED
+exit code: 0
+
+## same script, WRONG token
+PASS  GET /health (cold-start wait included)  [0.0 s]
+PASS  GET /ready: simulation mode, database/redis/storage ok  [mode=simulation {'database': 'ok', 'redis': 'ok', 'storage': 'ok'}]
+PASS  no token -> 401 error envelope
+FAIL  token check
+The API rejected the token (HTTP 401). Use the service's API_TOKEN (Render dashboard > Environment, 'reveal'), not CALLBACK_SIGNING_SECRET; copy it without spaces, quotes or angle brackets; and if the service was recreated use the new value.
+
+stopped: no further checks were run
+exit code: 2
+
+## token pasted with quotes and spaces (first lines)
+note: the token had surrounding spaces/quotes/brackets; they were removed
+PASS  GET /health (cold-start wait included)  [0.0 s]
+PASS  GET /ready: simulation mode, database/redis/storage ok  [mode=simulation {'database': 'ok', 'redis': 'ok', 'storage': 'ok'}]
+
+## service not reachable at all (port with nothing listening), short wait
+      ... service not answering yet (ConnectError); waiting for it to start
+FAIL  GET /health (cold-start wait included)  [RuntimeError: no usable answer after about 3 s (last: ConnectError)]
+FAIL  GET /ready: simulation mode, database/redis/storage ok  [ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it]
+FAIL  no token -> 401 error envelope  [ConnectError: [WinError 10061] No connection could be made because the target machine actively refused it]
+      ... service not answering yet (ConnectError); waiting for it to start
+FAIL  could not reach the API: RuntimeError: no usable answer after about 3 s (last: ConnectError)
+
+stopped: no further checks were run
+exit code: 1

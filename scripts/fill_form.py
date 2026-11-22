@@ -37,7 +37,7 @@ LEVELS = {
 for r in range(8, 17):
     LEVELS[r] = ("No", "", "Not built (see REPORT.md section 3).")
 INTEG = {
-    5: ("Yes", "docker-compose.yml; .env.example; README.md; `docker compose --profile test run --rm tests` -> evidence/docker_tests_summary.txt (151 passed, no API keys)"),
+    5: ("Yes", "docker-compose.yml; .env.example; README.md; `docker compose --profile test run --rm tests` -> evidence/docker_tests_summary.txt (162 passed, no API keys)"),
     6: ("Yes", "openapi.yaml (3.1, generated); tests/test_openapi_and_batch.py fails if stale; all routes under /api/v1/ or /connector/v1/"),
     7: ("Yes", "app/jobs.py; tests/test_contract_and_standard.py::test_job_lifecycle_fields, ::test_callback_is_signed_with_hmac"),
     8: ("Yes", T + "::test_same_key_twice_returns_same_job_and_one_post, ::test_same_key_different_request_rejected"),

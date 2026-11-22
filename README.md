@@ -39,7 +39,7 @@ only counts as certified after a real test post was published, confirmed live, r
 | `app/jobs.py` | RQ jobs, progress, HMAC-signed callbacks |
 | `app/mocks/platforms.py` | mock Discourse/Lemmy/Dev.to/Ghost/partner site with fault injection |
 | `cli/batch_runner.py` | batch runner; `samples/` holds 12 inputs |
-| `tests/` | unit + integration + end-to-end + hard cases (151 tests, no API keys) |
+| `tests/` | unit + integration + end-to-end + hard cases (162 tests, no API keys) |
 
 ## Quick start (under 10 commands)
 
@@ -159,7 +159,7 @@ Everything comes from environment variables; see `.env.example` (every setting i
 a destination row holds only `credentials_ref`, the **name** of an environment variable.
 
 ## Tests
-`pytest -q` runs 151 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
+`pytest -q` runs 162 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
 (including concurrent requests and timeout-after-publish), secret redaction, OpenAPI freshness and the batch runner.
 
 ## What is not built

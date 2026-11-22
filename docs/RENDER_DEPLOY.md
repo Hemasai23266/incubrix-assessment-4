@@ -39,8 +39,18 @@ python scripts/test_render_demo.py     # 49 checks, about 4 minutes; test-only s
 3. *New, then Blueprint*: select the repository (Render reads `render.yaml`), plan **Free**. Render generates `API_TOKEN` and
    `CALLBACK_SIGNING_SECRET`. Read `API_TOKEN` in the service's *Environment* tab (do not paste it in chats or commits).
 4. Wait for the first deploy (the image build takes a few minutes), then run:
-   `python scripts/smoke_test_deployed.py https://<service>.onrender.com <API_TOKEN>`
+   `python scripts/smoke_test_deployed.py https://<service>.onrender.com` (it asks for the token with hidden input; or set the
+   `INCUBRIX_API_TOKEN` environment variable; or pass the token as a second argument).
+   Use the service's **`API_TOKEN`**, not `CALLBACK_SIGNING_SECRET`. The token is never printed.
 5. In the Submission Form: demo URL = the Render URL, token = `API_TOKEN`, cold-start time = what the smoke test printed for the first request.
+
+### If the smoke test fails
+| Output | Meaning | What to do |
+|---|---|---|
+| `FAIL  token check` + "rejected the token" (exit code 2) | the API answered 401 | copy `API_TOKEN` again (Render, Environment, reveal); not `CALLBACK_SIGNING_SECRET`; no spaces, quotes or angle brackets; use the new value if the service was recreated |
+| `FAIL  demo catalogue present [n/12 ...]` | the start-up seed has not finished or did not run (it runs after boot and can lag on the free plan's small CPU) | the script already waits up to 2 minutes; if it still fails, look for `seed: catalogue ready` and `seed: 7/7 certifications passed` in the Render logs and tell the developer what the logs show |
+| `FAIL  rate limited (HTTP 429)` | more than 300 requests in a minute from your address | wait a minute and run it again |
+| first `GET /health` takes about a minute | cold start after the service slept | normal on the free plan; note the time for the form |
 
 ## 5. Free-tier behaviour you must disclose
 * **Cold starts:** Render's free web services spin down after about 15 minutes without traffic and take up to about a minute to wake
