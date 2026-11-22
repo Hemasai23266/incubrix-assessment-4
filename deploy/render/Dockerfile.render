@@ -1,0 +1,22 @@
+# All-in-one DEMO image for a free single-container host (Render free web service). SIMULATION MODE ONLY.
+# One container runs: Redis + FastAPI (uvicorn) + the RQ worker + a one-shot demo seed, managed by supervisord.
+# Differences from the full stack (docker-compose.yml): SQLite instead of Postgres, local disk instead of S3 storage,
+# Redis inside the container. See docs/RENDER_DEPLOY.md.
+FROM python:3.11-slim
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/srv
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends redis-server supervisor \
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd --create-home --uid 10001 app
+WORKDIR /srv
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app ./app
+COPY cli ./cli
+COPY scripts ./scripts
+COPY samples ./samples
+COPY openapi.yaml ./openapi.yaml
+COPY deploy/render ./deploy/render
+RUN sed -i 's/\r$//' deploy/render/entrypoint.sh deploy/render/supervisord.conf && chmod +x deploy/render/entrypoint.sh
+EXPOSE 10000
+ENTRYPOINT ["/srv/deploy/render/entrypoint.sh"]

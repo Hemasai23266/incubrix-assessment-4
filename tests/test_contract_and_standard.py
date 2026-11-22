@@ -143,11 +143,13 @@ def test_output_manifest_contents(client):
 def test_callback_is_signed_with_hmac(client, monkeypatch):
     sent = {}
 
-    def fake_post(url, content=None, timeout=None, headers=None):
-        sent.update(url=url, body=content, headers=headers)
+    def fake_safe_post(url, body, headers, **kw):
+        sent.update(url=url, body=body, headers=headers)
+        return 200
 
     import app.jobs as jobs
-    monkeypatch.setattr(jobs.httpx, "post", fake_post)
+    monkeypatch.setattr(jobs.netguard, "safe_post", fake_safe_post)
+    monkeypatch.setattr(jobs.netguard, "_resolve", lambda host, port: ["93.184.216.34"])
     d = make_dest(client, "discourse")
     r = client.post("/api/v1/publish", headers={**H, "Idempotency-Key": uid()},
                     json={"destination_id": d["id"], "rendition": {"title": "A sufficiently long test title", "body": "hello"},
@@ -156,6 +158,7 @@ def test_callback_is_signed_with_hmac(client, monkeypatch):
     want = "sha256=" + hmac.new(b"change-me-callback-secret", sent["body"], hashlib.sha256).hexdigest()
     assert sent["headers"]["X-IncuBrix-Signature"] == want
     assert json.loads(sent["body"])["status"] == "succeeded"
+    assert sent["url"] == "https://callback.example/hook"
 
 
 def test_file_upload_and_download(client):

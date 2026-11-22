@@ -21,6 +21,8 @@ ERROR_CODES: dict[str, tuple[bool, str]] = {
     "IDEMPOTENCY_KEY_REUSED": (False, "Idempotency-Key was already used with a different request."),
     "IDEMPOTENCY_KEY_REQUIRED": (False, "POST requires an Idempotency-Key header."),
     "RATE_LIMITED": (True, "Too many requests to this service."),
+    "CALLBACK_URL_REJECTED": (False, "callback_url failed the outbound-request safety checks (https, public address, allowed port)."),
+    "QUEUE_UNAVAILABLE": (True, "The job queue is unavailable; retry with the same Idempotency-Key."),
     "CONTRACT_VIOLATION": (False, "Platform response no longer matches what the connector expects."),
     "INTERNAL_ERROR": (False, "Unexpected server error."),
 }

@@ -10,27 +10,126 @@ import hashlib
 import hmac
 import itertools
 import time
+from collections.abc import MutableMapping
 from typing import Any
+
+from app.config import get_settings
 
 from fastapi import APIRouter, FastAPI, Header, Request
 from fastapi.responses import JSONResponse, Response
 
 INSTANCES = ["discourse", "discourse-b", "lemmy", "devto", "ghost", "partner-site", "partner-site-b"]
-FAULTS: dict[str, dict[str, bool]] = {}
+FAULT_DEFAULTS = {"auth_expired": False, "rename": False, "down": False, "revoked": False}
+
+
+class _FaultView(MutableMapping):
+    """Dict-like view of one instance's failure switches (reads and writes go through the shared store)."""
+
+    def __init__(self, store: "SharedFaults", name: str) -> None:
+        self._s, self._n = store, name
+
+    def __getitem__(self, k: str) -> bool:
+        return self._s.get(self._n)[k]
+
+    def __setitem__(self, k: str, v: bool) -> None:
+        cur = self._s.get(self._n)
+        cur[k] = bool(v)
+        self._s.put(self._n, cur)
+
+    def __delitem__(self, k: str) -> None:
+        raise TypeError("fault switches cannot be deleted")
+
+    def __iter__(self):
+        return iter(FAULT_DEFAULTS)
+
+    def __len__(self) -> int:
+        return len(FAULT_DEFAULTS)
+
+    def __repr__(self) -> str:
+        return repr(self._s.get(self._n))
+
+
+class SharedFaults:
+    """Failure switches for the mock platforms.
+
+    In-process mode (tests, inline jobs) they live in a plain dict. With RQ the API process flips the switches but the
+    WORKER process runs the mock platform, so they are kept in Redis (hash per instance) and both processes agree.
+    If Redis is unreachable it falls back to the local dict, so simulation never breaks because of it."""
+
+    def __init__(self) -> None:
+        self._local: dict[str, dict[str, bool]] = {}
+        self._client: Any = None
+
+    def _redis(self):
+        s = get_settings()
+        if s.job_backend != "rq" or not s.redis_url:
+            return None
+        if self._client is None:
+            from redis import Redis
+            self._client = Redis.from_url(s.redis_url, socket_connect_timeout=1, socket_timeout=1, decode_responses=True)
+        return self._client
+
+    def get(self, name: str) -> dict[str, bool]:
+        r = self._redis()
+        if r is not None:
+            try:
+                raw = r.hgetall(f"incubrix:mock-faults:{name}")
+                return {k: raw.get(k) == "1" for k in FAULT_DEFAULTS}
+            except Exception:
+                pass
+        return dict(self._local.get(name, FAULT_DEFAULTS))
+
+    def put(self, name: str, value: dict[str, bool]) -> None:
+        clean = {k: bool(value.get(k, False)) for k in FAULT_DEFAULTS}
+        self._local[name] = clean
+        r = self._redis()
+        if r is not None:
+            try:
+                r.hset(f"incubrix:mock-faults:{name}", mapping={k: "1" if v else "0" for k, v in clean.items()})
+            except Exception:
+                pass
+
+    def __getitem__(self, name: str) -> _FaultView:
+        if name not in INSTANCES:
+            raise KeyError(name)
+        return _FaultView(self, name)
+
+    def __setitem__(self, name: str, value: dict[str, bool]) -> None:
+        self.put(name, value)
+
+    def __contains__(self, name: object) -> bool:
+        return name in INSTANCES
+
+    def __iter__(self):
+        return iter(INSTANCES)
+
+    def clear(self) -> None:
+        self._local.clear()
+        r = self._redis()
+        if r is not None:
+            try:
+                r.delete(*[f"incubrix:mock-faults:{n}" for n in INSTANCES])
+            except Exception:
+                pass
+
+
+FAULTS = SharedFaults()
 STORES: dict[str, dict[str, Any]] = {}
 WEBHOOK_SECRETS = {"partner-site": "sim-webhook-secret", "partner-site-b": "sim-webhook-secret"}
 _ids = itertools.count(100)
 
 
-def reset_mocks() -> None:
-    FAULTS.clear()
+def reset_mocks(shared: bool = True) -> None:
+    if shared:  # an explicit reset also clears the switches kept in Redis; plain start-up must not undo another process's switches
+        FAULTS.clear()
+        for n in INSTANCES:
+            FAULTS[n] = dict(FAULT_DEFAULTS)
     STORES.clear()
     for n in INSTANCES:
-        FAULTS[n] = {"auth_expired": False, "rename": False, "down": False, "revoked": False}
         STORES[n] = {"posts": {}, "idem": {}, "seen_drop": set(), "calls": 0}
 
 
-reset_mocks()
+reset_mocks(shared=False)
 
 
 def _err(status: int, message: str, headers: dict | None = None) -> JSONResponse:
@@ -350,7 +449,7 @@ def _health():
 async def _control(instance: str, req: Request):
     """Flip a fault switch at runtime, e.g. {"rename": true}."""
     FAULTS[instance].update(await req.json())
-    return FAULTS[instance]
+    return dict(FAULTS[instance])
 
 
 @mock_app.post("/__reset")

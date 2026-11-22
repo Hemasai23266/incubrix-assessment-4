@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from sqlalchemy import JSON, Boolean, DateTime, Float, Integer, String, UniqueConstraint, create_engine
+from sqlalchemy import JSON, Boolean, DateTime, Float, Integer, String, UniqueConstraint, create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -131,16 +131,37 @@ _engine = None
 _Session = None
 
 
+def _harden_sqlite(engine) -> None:
+    """File-based SQLite shared by several processes: WAL (readers never block the writer), a 30 s busy timeout, and
+    BEGIN IMMEDIATE so a transaction takes the write lock up front instead of failing later with 'database is locked'
+    when a read lock cannot be upgraded. Postgres and the in-memory test database are not affected."""
+    @event.listens_for(engine, "connect")
+    def _on_connect(dbapi_conn, _record):
+        dbapi_conn.isolation_level = None  # we emit BEGIN ourselves (see _on_begin)
+        cur = dbapi_conn.cursor()
+        cur.execute("PRAGMA journal_mode=WAL")
+        cur.execute("PRAGMA busy_timeout=30000")
+        cur.execute("PRAGMA synchronous=NORMAL")
+        cur.close()
+
+    @event.listens_for(engine, "begin")
+    def _on_begin(conn):
+        conn.exec_driver_sql("BEGIN IMMEDIATE")
+
+
 def get_engine():
     global _engine, _Session
     if _engine is None:
         url = get_settings().database_url
         kwargs: dict[str, Any] = {}
+        file_sqlite = url.startswith("sqlite") and ":memory:" not in url
         if url.startswith("sqlite"):
-            kwargs = {"connect_args": {"check_same_thread": False}}
+            kwargs = {"connect_args": {"check_same_thread": False, "timeout": 30}}
             if ":memory:" in url:
                 kwargs["poolclass"] = StaticPool
         _engine = create_engine(url, pool_pre_ping=True, **kwargs)
+        if file_sqlite:
+            _harden_sqlite(_engine)  # several processes (API + worker) share one file in the single-container demo
         _Session = sessionmaker(_engine, expire_on_commit=False)
     return _engine
 

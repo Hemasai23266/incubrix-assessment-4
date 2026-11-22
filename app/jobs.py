@@ -7,9 +7,11 @@ import json
 import logging
 from typing import Any
 
-import httpx
+from urllib.parse import urlsplit
 
-from app import runtime
+from redis.exceptions import RedisError
+
+from app import netguard, runtime
 from app.config import get_settings
 from app.db import Job, session_scope, utcnow
 from app.errors import AppError
@@ -24,12 +26,20 @@ def sign_callback(body: bytes) -> str:
 
 
 def _send_callback(url: str, payload: dict[str, Any]) -> None:
+    """Deliver the signed callback through the SSRF guard. A blocked or failing callback never fails the job."""
     body = json.dumps(payload, default=str, sort_keys=True).encode()
+    headers = {"Content-Type": "application/json", "X-IncuBrix-Signature": sign_callback(body)}
     try:
-        httpx.post(url, content=body, timeout=5.0,
-                   headers={"Content-Type": "application/json", "X-IncuBrix-Signature": sign_callback(body)})
+        status = netguard.safe_post(url, body, headers)
+        log(logger, logging.INFO, "callback delivered", host=urlsplit(url).hostname, http_status=status)
+    except netguard.CallbackRejected as e:
+        log(logger, logging.WARNING, "callback blocked by the outbound-request guard", host=urlsplit(url).hostname, reason=e.reason)
     except Exception as e:  # a failing callback must never fail the job
-        log(logger, logging.WARNING, "callback delivery failed", url=url, error=type(e).__name__)
+        log(logger, logging.WARNING, "callback delivery failed", host=urlsplit(url).hostname, error=type(e).__name__)
+
+
+class QueueUnavailable(Exception):
+    """The job queue (Redis) could not be reached when enqueueing."""
 
 
 def job_view(j: Job) -> dict[str, Any]:
@@ -97,6 +107,10 @@ def enqueue(job_id: str) -> None:
     if s.job_backend == "rq" and s.redis_url:
         from redis import Redis
         from rq import Queue
-        Queue("incubrix", connection=Redis.from_url(s.redis_url)).enqueue("app.jobs.run_job", job_id, job_timeout=600)
+        try:
+            Queue("incubrix", connection=Redis.from_url(s.redis_url, socket_connect_timeout=2, socket_timeout=5)).enqueue(
+                "app.jobs.run_job", job_id, job_timeout=600)
+        except (RedisError, OSError) as e:
+            raise QueueUnavailable(type(e).__name__) from e
     else:
         run_job(job_id)

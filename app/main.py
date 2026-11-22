@@ -19,10 +19,10 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app import jobs, rules, runtime, storage
+from app import jobs, netguard, rules, runtime, storage
 from app.config import get_settings
 from app.connectors.registry import get_connector, get_registry
-from app.db import ConnectorState, Destination, IdempotencyRecord, Job, get_session, init_db, new_id, session_scope
+from app.db import ConnectorState, Destination, IdempotencyRecord, Job, get_session, init_db, new_id, session_scope, utcnow
 from app.errors import ERROR_CODES, AppError
 from app.logging_setup import correlation_id_var, log, setup_logging
 
@@ -207,6 +207,30 @@ def accepted(job: Job, created: bool) -> JSONResponse:
     return JSONResponse(body, status_code=202, headers={"Location": f"/api/v1/jobs/{job.id}"})
 
 
+def check_callback_url(url: str | None) -> None:
+    """Reject unsafe callback URLs at submission time (they are checked again, authoritatively, when the callback is sent)."""
+    if url:
+        try:
+            netguard.validate_callback_url(url)
+        except netguard.CallbackRejected as e:
+            raise AppError("CALLBACK_URL_REJECTED", f"callback_url rejected: {e.reason}", {"reason": e.reason}, 422)
+
+
+def dispatch(db: Session, job: Job) -> None:
+    """Hand a new job to the worker. If the queue is down, mark the job failed-but-retryable and answer 503, so a retry with
+    the same Idempotency-Key re-runs this same job instead of leaving it queued forever."""
+    try:
+        jobs.enqueue(job.id)
+    except jobs.QueueUnavailable:
+        job.status, job.progress, job.finished_at = "failed", 100, utcnow()
+        job.error = {"code": "QUEUE_UNAVAILABLE", "message": "the job queue is unavailable; retry with the same Idempotency-Key",
+                     "retryable": True, "details": {}}
+        db.commit()
+        raise AppError("QUEUE_UNAVAILABLE", "the job queue is temporarily unavailable; retry with the same Idempotency-Key",
+                       {"job_id": job.id, "retry_with_same_idempotency_key": True, "retry_after_seconds": 5}, 503)
+    db.refresh(job)
+
+
 def _get_dest(db: Session, dest_id: str) -> Destination:
     d = db.get(Destination, dest_id)
     if d is None:
@@ -333,11 +357,11 @@ def check_rules(dest_id: str, rendition: Rendition, db: Session = Depends(get_se
 def certify_destination(dest_id: str, request: Request, body: CertifyIn | None = None,
                         idem: str = Depends(require_idem), db: Session = Depends(get_session)):
     _get_dest(db, dest_id)
+    check_callback_url(body.callback_url if body else None)
     job, created = create_idempotent_job(db, "certify", f"certify:{dest_id}", idem, {"destination_id": dest_id},
                                          body.callback_url if body else None, request)
     if created:
-        jobs.enqueue(job.id)
-        db.refresh(job)
+        dispatch(db, job)
     return accepted(job, created)
 
 
@@ -354,11 +378,11 @@ def list_certifications(dest_id: str, db: Session = Depends(get_session)):
 def publish(body: PublishIn, request: Request, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
     """Queue a publish. Same Idempotency-Key => same job, never a second post."""
     _get_dest(db, body.destination_id)
+    check_callback_url(body.callback_url)
     payload = {"destination_id": body.destination_id, "rendition": body.rendition.model_dump(), "idempotency_key": idem}
     job, created = create_idempotent_job(db, "publish", "publish", idem, {k: v for k, v in payload.items()}, body.callback_url, request)
     if created:
-        jobs.enqueue(job.id)
-        db.refresh(job)
+        dispatch(db, job)
     return accepted(job, created)
 
 
@@ -374,8 +398,7 @@ def get_job(job_id: str, db: Session = Depends(get_session)):
 def cleanup(request: Request, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
     job, created = create_idempotent_job(db, "cleanup", "cleanup", idem, {}, None, request)
     if created:
-        jobs.enqueue(job.id)
-        db.refresh(job)
+        dispatch(db, job)
     return accepted(job, created)
 
 
@@ -409,7 +432,7 @@ def set_fault(instance: str, body: FaultIn):
     if instance not in FAULTS:
         raise AppError("NOT_FOUND", f"unknown mock instance '{instance}'", {"known": sorted(FAULTS)}, 404)
     FAULTS[instance].update({k: v for k, v in body.model_dump().items() if v is not None})
-    return {"instance": instance, "faults": FAULTS[instance]}
+    return {"instance": instance, "faults": dict(FAULTS[instance])}
 
 
 # ------------------------------------------------------------------ connector contract (Appendix A)

@@ -1,0 +1,19 @@
+# Render Blueprint for the single-container FREE demo (simulation mode only). Not used by the full docker-compose stack.
+# Nothing here is deployed automatically: you create the service yourself (see docs/RENDER_DEPLOY.md).
+services:
+  - type: web
+    name: incubrix-longtail-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/render/Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: SIMULATION_MODE
+        value: "true"
+      - key: API_TOKEN
+        generateValue: true          # Render generates a random token; read it in the dashboard and put it in the form
+      - key: CALLBACK_SIGNING_SECRET
+        generateValue: true
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "300"
