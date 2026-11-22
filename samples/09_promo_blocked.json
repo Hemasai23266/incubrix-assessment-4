@@ -1,0 +1,20 @@
+{
+  "destination": {
+    "name": "No Promo Lemmy",
+    "url": "https://no-promo-lemmy.example",
+    "platform_key": "lemmy",
+    "surface": "post",
+    "connector_key": "lemmy",
+    "self_promo_allowed": false,
+    "options": {
+      "community": "x"
+    }
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities.",
+    "is_promotional": true
+  },
+  "expect": "failed:DEST_RULE_VIOLATION",
+  "name": "09_promo_blocked"
+}

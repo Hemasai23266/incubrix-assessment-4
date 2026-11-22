@@ -1,0 +1,19 @@
+{
+  "destination": {
+    "name": "Short Title Lemmy",
+    "url": "https://short-title-lemmy.example",
+    "platform_key": "lemmy",
+    "surface": "post",
+    "connector_key": "lemmy",
+    "self_promo_allowed": true,
+    "options": {
+      "community": "x"
+    }
+  },
+  "rendition": {
+    "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "body": "We built a faster way to publish video to many communities."
+  },
+  "expect": "failed:DEST_SPEC_VIOLATION",
+  "name": "08_title_too_long"
+}

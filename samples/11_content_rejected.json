@@ -1,0 +1,17 @@
+{
+  "destination": {
+    "name": "Rejecting Devto",
+    "url": "https://rejecting-devto.example",
+    "platform_key": "devto",
+    "surface": "article",
+    "connector_key": "devto",
+    "self_promo_allowed": true,
+    "options": {}
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today [[reject]]",
+    "body": "We built a faster way to publish video to many communities."
+  },
+  "expect": "failed:PLATFORM_CONTENT_REJECTED",
+  "name": "11_content_rejected"
+}

@@ -1,0 +1,16 @@
+{
+  "destination": {
+    "name": "Sample Ghost",
+    "url": "https://sample-ghost.example",
+    "platform_key": "ghost",
+    "surface": "post",
+    "connector_key": "ghost",
+    "self_promo_allowed": true,
+    "options": {}
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities."
+  },
+  "name": "04_ghost_publish"
+}

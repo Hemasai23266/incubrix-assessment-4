@@ -1,0 +1,16 @@
+{
+  "destination": {
+    "name": "Sample Partner",
+    "url": "https://sample-partner.example",
+    "platform_key": "webhook",
+    "surface": "partner_post",
+    "connector_key": "webhook",
+    "self_promo_allowed": true,
+    "options": {}
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities."
+  },
+  "name": "05_webhook_publish"
+}

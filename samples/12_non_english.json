@@ -1,0 +1,18 @@
+{
+  "destination": {
+    "name": "Hindi Forum",
+    "url": "https://hindi-forum.example",
+    "platform_key": "discourse",
+    "surface": "topic",
+    "connector_key": "discourse",
+    "self_promo_allowed": true,
+    "options": {},
+    "language": "hi"
+  },
+  "rendition": {
+    "title": "नमस्ते दुनिया — यह एक लंबा शीर्षक है",
+    "body": "यह परीक्षण पाठ है",
+    "language": "hi"
+  },
+  "name": "12_non_english"
+}

@@ -1,0 +1,20 @@
+{
+  "destination": {
+    "name": "Sample Manual Community",
+    "url": "https://sample-manual-community.example",
+    "platform_key": "assisted",
+    "surface": "manual_post",
+    "connector_key": "assisted",
+    "self_promo_allowed": true,
+    "options": {
+      "submit_url": "https://example.org/submit"
+    },
+    "automation_allowed": false,
+    "rules_url": "https://example.org/rules"
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities."
+  },
+  "name": "06_assisted_pack"
+}

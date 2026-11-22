@@ -1,0 +1,19 @@
+{
+  "destination": {
+    "name": "Disclosure Forum",
+    "url": "https://disclosure-forum.example",
+    "platform_key": "discourse",
+    "surface": "topic",
+    "connector_key": "discourse",
+    "self_promo_allowed": true,
+    "options": {},
+    "disclosure_required": true
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities.",
+    "ai_generated": true
+  },
+  "expect": "failed:DEST_RULE_VIOLATION",
+  "name": "10_ai_disclosure_missing"
+}

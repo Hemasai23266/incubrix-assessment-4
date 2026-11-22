@@ -1,0 +1,13 @@
+{
+  "action": "certify",
+  "destination": {
+    "name": "Cert Discourse",
+    "url": "https://cert-discourse.example",
+    "platform_key": "discourse",
+    "surface": "topic",
+    "connector_key": "discourse",
+    "self_promo_allowed": true,
+    "options": {}
+  },
+  "name": "07_certify_discourse"
+}

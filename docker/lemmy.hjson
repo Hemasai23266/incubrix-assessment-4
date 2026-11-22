@@ -1,0 +1,13 @@
+{
+  hostname: "localhost"
+  bind: "0.0.0.0"
+  port: 8536
+  tls_enabled: false
+  database: { host: "lemmy-db", user: "lemmy", password: "lemmy-local-only", database: "lemmy" }
+  pictrs: { url: "http://pictrs:8080/" }
+  setup: {
+    admin_username: "incubrix"
+    admin_password: "incubrix-local-only"
+    site_name: "IncuBrix local Lemmy"
+  }
+}

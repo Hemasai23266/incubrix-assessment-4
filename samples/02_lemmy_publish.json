@@ -1,0 +1,18 @@
+{
+  "destination": {
+    "name": "Sample Lemmy",
+    "url": "https://sample-lemmy.example",
+    "platform_key": "lemmy",
+    "surface": "post",
+    "connector_key": "lemmy",
+    "self_promo_allowed": true,
+    "options": {
+      "community": "incubrix_test"
+    }
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities."
+  },
+  "name": "02_lemmy_publish"
+}

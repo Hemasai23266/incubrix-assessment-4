@@ -1,0 +1,84 @@
+# One command: `docker compose up --build`  (everything below uses local, throw-away credentials)
+services:
+  db:
+    image: postgres:16-alpine
+    environment: {POSTGRES_USER: incubrix, POSTGRES_PASSWORD: incubrix, POSTGRES_DB: incubrix}
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U incubrix"], interval: 3s, timeout: 3s, retries: 20}
+    volumes: [pgdata:/var/lib/postgresql/data]
+  redis:
+    image: redis:7-alpine
+    healthcheck: {test: ["CMD", "redis-cli", "ping"], interval: 3s, timeout: 3s, retries: 20}
+  s3:                          # S3-compatible object storage (SeaweedFS, Apache-2.0). MinIO also works: set S3_ENDPOINT_URL.
+    image: chrislusf/seaweedfs:latest
+    command: server -s3 -dir=/data -ip.bind=0.0.0.0
+    ports: ["8333:8333"]
+    volumes: [s3data:/data]
+  mocks:
+    build: .
+    command: uvicorn app.mocks.platforms:mock_app --host 0.0.0.0 --port 9100
+    ports: ["9100:9100"]
+  api: &app
+    build: .
+    env_file: [{path: .env, required: false}, .env.example]
+    environment: &appenv
+      DATABASE_URL: postgresql+psycopg://incubrix:incubrix@db:5432/incubrix
+      REDIS_URL: redis://redis:6379/0
+      JOB_BACKEND: rq
+      S3_ENDPOINT_URL: http://s3:8333
+      SIMULATION_MODE: ${SIMULATION_MODE:-true}
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      s3: {condition: service_started}
+    ports: ["8000:8000"]
+    healthcheck: {test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/ready')"], interval: 5s, timeout: 5s, retries: 30}
+  worker:
+    <<: *app
+    command: python -m app.worker
+    ports: []
+    healthcheck: {disable: true}
+  tests:                       # `docker compose run --rm tests`
+    <<: *app
+    profiles: [test]
+    command: pytest -q
+    environment:
+      <<: *appenv
+      DATABASE_URL: "sqlite:///:memory:"
+      JOB_BACKEND: inline
+      S3_ENDPOINT_URL: ""
+      REDIS_URL: ""
+      SIMULATION_MODE: "true"
+    depends_on: {}
+    ports: []
+    healthcheck: {disable: true}
+  # ---- real local instances for end-to-end posts --------------------------------------------------
+  ghost:
+    image: ghost:5-alpine
+    environment: {url: "http://localhost:2368", database__client: sqlite3, database__connection__filename: /var/lib/ghost/content/data/ghost.db, NODE_ENV: development}
+    ports: ["2368:2368"]
+    volumes: [ghostdata:/var/lib/ghost/content]
+  lemmy-db:
+    image: postgres:16-alpine
+    environment: {POSTGRES_USER: lemmy, POSTGRES_PASSWORD: lemmy-local-only, POSTGRES_DB: lemmy}
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U lemmy"], interval: 3s, timeout: 3s, retries: 20}
+    volumes: [lemmydb:/var/lib/postgresql/data]
+  pictrs:
+    image: asonix/pictrs:0.5
+    environment: {PICTRS__SERVER__API_KEY: local-only}
+    user: root
+    volumes: [pictrs:/mnt]
+  lemmy:
+    image: dessalines/lemmy:0.19.5
+    environment: {RUST_LOG: warn}
+    volumes: ["./docker/lemmy.hjson:/config/config.hjson:ro"]
+    restart: on-failure
+    depends_on:
+      lemmy-db: {condition: service_healthy}
+      pictrs: {condition: service_started}
+    ports: ["8536:8536"]
+  seed:                        # one-shot: creates Ghost owner + integration key and the Lemmy test community
+    build: .
+    profiles: [seed]
+    command: python scripts/seed_local.py
+    depends_on: [ghost, lemmy]
+volumes: {pgdata: {}, s3data: {}, ghostdata: {}, lemmydb: {}, pictrs: {}}

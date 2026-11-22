@@ -1,0 +1,21 @@
+{
+  "destination": {
+    "name": "Sample Devto",
+    "url": "https://sample-devto.example",
+    "platform_key": "devto",
+    "surface": "article",
+    "connector_key": "devto",
+    "self_promo_allowed": true,
+    "options": {}
+  },
+  "rendition": {
+    "title": "Shipping our new video workflow today",
+    "body": "We built a faster way to publish video to many communities.",
+    "tags": [
+      "ai",
+      "video"
+    ],
+    "link": "https://incubrix.example/post"
+  },
+  "name": "03_devto_publish"
+}
