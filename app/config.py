@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 0  # 0 = off
     public_base_url: str = "http://localhost:8000"
     http_timeout_seconds: float = 10.0
+    credentials_dir: str = ""  # optional folder of secret files (one file per credentials_ref), e.g. a Docker volume
     max_inline_backoff_seconds: float = 3.0  # sleep and retry a 429 only when the reset is this short
 
 

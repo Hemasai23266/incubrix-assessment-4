@@ -240,7 +240,8 @@ def ready():
             checks["redis"] = f"fail: {type(e).__name__}"
     checks["storage"] = "ok" if storage.storage_ready() else "fail"
     ok = all(v == "ok" for v in checks.values())
-    return JSONResponse({"status": "ready" if ok else "not_ready", "checks": checks}, status_code=200 if ok else 503)
+    return JSONResponse({"status": "ready" if ok else "not_ready", "mode": "simulation" if s.simulation_mode else "live",
+                         "checks": checks}, status_code=200 if ok else 503)
 
 
 # ------------------------------------------------------------------ /api/v1

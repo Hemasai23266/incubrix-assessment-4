@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
@@ -44,12 +46,33 @@ def dest_to_dict(d: Destination) -> dict[str, Any]:
     return out
 
 
+_REF_RE = re.compile(r"^[A-Za-z0-9_]{1,100}$")
+
+
+def read_secret(ref: str) -> str:
+    """Resolve a credentials_ref NAME to its secret. A seeded file in CREDENTIALS_DIR (a read-only local volume,
+    like Docker secrets) wins; otherwise the environment variable of that name. The value is never logged."""
+    if not _REF_RE.match(ref or ""):
+        return ""
+    d = get_settings().credentials_dir
+    if d:
+        f = Path(d) / ref
+        try:
+            if f.is_file() and f.resolve().parent == Path(d).resolve():
+                v = f.read_text(encoding="utf-8").strip()
+                if v:
+                    return v
+        except OSError:
+            pass
+    return os.environ.get(ref, "")
+
+
 def resolve_connection(dest: Destination) -> dict[str, Any]:
     """Credentials come from the environment (NAME stored in the row), never from the repository/DB."""
     s = get_settings()
     key = dest.connector_key
     opts = dest.options or {}
-    secret = os.environ.get(dest.credentials_ref, "") if dest.credentials_ref else ""
+    secret = read_secret(dest.credentials_ref) if dest.credentials_ref else ""
     conn: dict[str, Any] = {"base_url": opts.get("base_url") or (f"http://mock/{opts.get('mock_instance', SIM_INSTANCE.get(key, key))}" if s.simulation_mode else ""),
                             "username": opts.get("username", "")}
     if s.simulation_mode:
