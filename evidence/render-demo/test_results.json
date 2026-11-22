@@ -1,0 +1,265 @@
+{
+  "run_utc": "2026-11-22T19:33:38.847301+00:00",
+  "image": "incubrix-render-demo",
+  "passed": 49,
+  "total": 49,
+  "notes": {
+    "start_to_ready_s": 2.4,
+    "ready_to_seed_done_s": 1.9,
+    "post_while_redis_down": {
+      "http_status": 503,
+      "code": "QUEUE_UNAVAILABLE",
+      "retry_after": "5"
+    },
+    "docker_restart_keeps_data": true,
+    "fresh_start_to_ready_s": 2.4,
+    "memory_after_load": "153.2MiB / 7.596GiB | cpu 0.79%"
+  },
+  "results": [
+    {
+      "check": "container starts and /ready returns 200",
+      "status": "PASS",
+      "detail": "2.4 s after docker run"
+    },
+    {
+      "check": "demo catalogue seeded and 7/7 mock certifications passed",
+      "status": "PASS",
+      "detail": "seed finished 1.9 s after ready"
+    },
+    {
+      "check": "supervisord: redis RUNNING",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "supervisord: api RUNNING",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "supervisord: worker RUNNING",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "supervisord: seed finished cleanly (EXITED)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "GET /health 200",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "GET /ready: database, redis, storage ok; mode simulation",
+      "status": "PASS",
+      "detail": "{\"database\": \"ok\", \"redis\": \"ok\", \"storage\": \"ok\"}"
+    },
+    {
+      "check": "unauthenticated API call is rejected with the error envelope",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "no real-platform credentials in the container environment",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "12 demo destinations present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "POST /publish returns 202 + job_id + Location",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "worker processed the job (succeeded, progress 100, manifest present)",
+      "status": "PASS",
+      "detail": "succeeded"
+    },
+    {
+      "check": "same Idempotency-Key returns the same job",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exactly one post row for that key",
+      "status": "PASS",
+      "detail": "rows=1"
+    },
+    {
+      "check": "same key + different body -> 422 IDEMPOTENCY_KEY_REUSED",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "timeout-after-create: first attempt fails retryable PLATFORM_UNAVAILABLE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "retry with the same key re-runs the SAME job and succeeds",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "still exactly one post row after the retry",
+      "status": "PASS",
+      "detail": "rows=1"
+    },
+    {
+      "check": "11 unsafe callback URLs (localhost, private/link-local/metadata IPs, internal names, odd IP spellings, bad port, http) all rejected 422 CALLBACK_URL_REJECTED",
+      "status": "PASS",
+      "detail": "11/11 rejected"
+    },
+    {
+      "check": "nothing reached the local receiver",
+      "status": "PASS",
+      "detail": "0 requests received"
+    },
+    {
+      "check": "a job with no callback still succeeds afterwards",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "60 concurrent publishes all accepted (202)",
+      "status": "PASS",
+      "detail": "0 rejected"
+    },
+    {
+      "check": "16 concurrent same-key requests collapse to ONE job",
+      "status": "PASS",
+      "detail": "1 distinct job ids"
+    },
+    {
+      "check": "all concurrent jobs succeeded",
+      "status": "PASS",
+      "detail": "61/61 in 6.4 s"
+    },
+    {
+      "check": "no 'database is locked' in any log line",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "exactly one post row for the concurrent same-key request",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "Redis restart with queued jobs: AOF kept the queue, all 5 jobs completed",
+      "status": "PASS",
+      "detail": "['succeeded', 'succeeded', 'succeeded', 'succeeded', 'succeeded']"
+    },
+    {
+      "check": "Redis data LOST (flushall): worker start re-enqueues orphaned jobs, all 5 completed",
+      "status": "PASS",
+      "detail": "queue length after flush=0, states=['succeeded', 'succeeded', 'succeeded', 'succeeded', 'succeeded']"
+    },
+    {
+      "check": "Redis DOWN at submit time: retryable 503 QUEUE_UNAVAILABLE with Retry-After",
+      "status": "PASS",
+      "detail": "HTTP 503 QUEUE_UNAVAILABLE"
+    },
+    {
+      "check": "that job is failed/retryable (not stuck 'queued')",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "after Redis recovers, the SAME key re-runs the SAME job and it succeeds",
+      "status": "PASS",
+      "detail": "succeeded"
+    },
+    {
+      "check": "API still healthy after the Redis outage",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "file upload 201 and download returns the same bytes",
+      "status": "PASS",
+      "detail": "http://localhost:10000/api/v1/files/uploads/be84df4cf9636aeb/pic.png"
+    },
+    {
+      "check": "download link points at PUBLIC_BASE_URL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "path traversal on download is refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "certification evidence file is downloadable from local storage",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "renamed-field switch reaches the WORKER: certification fails CONTRACT_VIOLATION and destination is demoted",
+      "status": "PASS",
+      "detail": "failed CONTRACT_VIOLATION demoted"
+    },
+    {
+      "check": "switch off + re-certify: destination recovers",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "expired-token switch: CONNECTION_AUTH_EXPIRED",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "frequency cap on the demo destination: 2nd post rescheduled",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "promotional post to no-promo destination blocked",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "rate limit: 300/min default returns 429 RATE_LIMITED when exceeded",
+      "status": "PASS",
+      "detail": "219 of 420 requests limited, 201 served"
+    },
+    {
+      "check": "`docker restart` (same container filesystem): data kept, seed re-run adds no duplicates",
+      "status": "PASS",
+      "detail": "12 -> 12 destinations"
+    },
+    {
+      "check": "graceful shutdown (docker stop): exits 0 well inside the grace period",
+      "status": "PASS",
+      "detail": "exit 0 in 2.6 s"
+    },
+    {
+      "check": "API token never appears in container logs",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "fresh container (what a Render redeploy/wake looks like): old job is gone (ephemeral data loss)",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "fresh container: catalogue re-seeded automatically",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "memory well under Render free 512 MB",
+      "status": "PASS",
+      "detail": "153.2MiB / 7.596GiB | cpu 0.79%"
+    }
+  ]
+}

@@ -39,7 +39,7 @@ only counts as certified after a real test post was published, confirmed live, r
 | `app/jobs.py` | RQ jobs, progress, HMAC-signed callbacks |
 | `app/mocks/platforms.py` | mock Discourse/Lemmy/Dev.to/Ghost/partner site with fault injection |
 | `cli/batch_runner.py` | batch runner; `samples/` holds 12 inputs |
-| `tests/` | unit + integration + end-to-end + hard cases (60 tests, no API keys) |
+| `tests/` | unit + integration + end-to-end + hard cases (151 tests, no API keys) |
 
 ## Quick start (under 10 commands)
 
@@ -71,6 +71,19 @@ volume (mode 0600, mounted **read-only** into api/worker, never printed) and reg
 then from environment variables. Go back to simulation with a plain `docker compose up -d`.
 Ghost runs with `security__staffDeviceVerification=false` **for local development only** (no mail server exists, so the
 verification email would make every repeat login fail); never disable it on a production Ghost.
+
+### Free single-container demo
+`deploy/render/` + `render.yaml` + `docs/RENDER_DEPLOY.md` describe an all-in-one, **simulation-only** image (SQLite + Redis + RQ worker +
+API in one container) for a free host such as Render. It is separate from `docker-compose.yml`, tested locally, and **not deployed**.
+`python scripts/test_render_demo.py` runs 49 checks against it.
+
+### Callback URL safety (SSRF protection)
+`callback_url` is checked when the job is submitted (`422 CALLBACK_URL_REJECTED`) and again, authoritatively, when the callback is sent:
+HTTPS only, port 443 or 8443 (`CALLBACK_ALLOWED_PORTS`), no credentials in the URL, no `localhost`/internal suffixes/single-label names, no odd IP spellings, and
+every address the host resolves to must be globally routable (loopback, private, link-local incl. the cloud metadata address, CGNAT, multicast and IPv6-embedded
+forms are refused). The name is resolved once and the connection goes to that validated address (Host header and TLS name check use the original host name), which
+defeats DNS rebinding. Redirects are never followed, proxies from the environment are ignored and the response is never read. Signing is unchanged:
+`X-IncuBrix-Signature: sha256=HMAC_SHA256(CALLBACK_SIGNING_SECRET, raw_body)`. `CALLBACK_ALLOW_PRIVATE` / `CALLBACK_ALLOW_HTTP` exist for local development only; the demo image refuses to start with them.
 
 ### Local-only credentials (NOT production credentials)
 These are throw-away values that exist only so the local test containers can start. They protect nothing, the containers
@@ -136,6 +149,8 @@ also sent to the platform, so a post created before the timeout is reconciled ra
 | `DEST_NOT_CERTIFIED` | no | destination demoted after failed certification |
 | `DEST_PERMISSION_REVOKED` | no | partner revoked permission |
 | `CONTRACT_VIOLATION` | no | platform changed its response (renamed field); certification fails and the destination is demoted |
+| `CALLBACK_URL_REJECTED` | no | `callback_url` failed the outbound-request safety checks (see below) |
+| `QUEUE_UNAVAILABLE` | yes | job queue (Redis) down: HTTP 503 with `Retry-After: 5`; retry with the same `Idempotency-Key` re-runs the same job |
 | `IDEMPOTENCY_KEY_REQUIRED` / `IDEMPOTENCY_KEY_REUSED` | no | idempotency problems |
 | `UNAUTHORIZED`, `NOT_FOUND`, `VALIDATION_ERROR`, `RATE_LIMITED`, `INTERNAL_ERROR` | - | service level |
 
@@ -144,7 +159,7 @@ Everything comes from environment variables; see `.env.example` (every setting i
 a destination row holds only `credentials_ref`, the **name** of an environment variable.
 
 ## Tests
-`pytest -q` runs 60 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
+`pytest -q` runs 151 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
 (including concurrent requests and timeout-after-publish), secret redaction, OpenAPI freshness and the batch runner.
 
 ## What is not built

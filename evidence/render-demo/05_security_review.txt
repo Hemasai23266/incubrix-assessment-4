@@ -1,0 +1,21 @@
+## security + accidental-file review 2026-11-23T01:03:58+05:30
+-- 1. file types that must never be committed (tracked or untracked, not ignored):
+   (blank = none; .env.example is the intended template; evidence/render-demo/*.log are my test logs)
+-- 2. gitignore protects them:
+   ignored by .gitignore:4:.env -> .env
+   ignored by .gitignore:8:*.xlsx -> Assessment4_DRAFT.xlsx
+   ignored by .gitignore:9:*.pdf -> IncuBrix_Assessment_4_Distribution_Long_Tail_Destination_Network_Brief.pdf
+   ignored by .gitignore:8:*.xlsx -> IncuBrix_Assessment_4_Distribution_Long_Tail_Destination_Network_Submission_Form.xlsx
+   ignored by .gitignore:7:evidence/local_store/ -> evidence/local_store
+   ignored by .gitignore:1:.venv/ -> .venv
+-- 3. working tree (tracked+untracked): token/cookie/key patterns: 1
+scripts/test_render_demo.py:23:TOKEN, CB_SECRET = "local-test-token-0123456789abcdef", "local-test-callback-secret-0123456789"
+-- 4. working tree: real Ghost key secrets (current volume / .env) and the 3 revoked keys: 0 / 0
+-- 5. FULL history (git log -p --all): patterns: 0; real keys: 0; revoked: 0; session cookies: 0
+-- 6. history: file names ever committed that look sensitive: 0
+-- 7. unreachable git objects: 0
+-- 8. ignored files containing secrets (expected: only .env):
+   .env: pattern=1 envkey=1 volumekey=0
+-- 9. largest files to be committed: evidence/certification/ghost/local-instance/screenshots/ghost_01_live_182453.png (57 KB); evidence/certification/lemmy/local-instance/screenshots/lemmy_01_live_182501.png (53 KB); evidence/render-demo/00_build.log (30 KB); openapi.yaml (23 KB)
+-- 10. fake test-only credentials in scripts (must be obviously fake):
+23:TOKEN, CB_SECRET = "local-test-token-0123456789abcdef", "local-test-callback-secret-0123456789"

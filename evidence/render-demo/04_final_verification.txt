@@ -1,0 +1,4 @@
+## final verification before the two local commits 2026-11-23T01:00:34+05:30
+-- host tests: 151 passed, 3 warnings in 8.42s
+-- full-stack Docker test profile (offline): 151 passed, 3 warnings in 5.13s
+-- Render demo image driver: 49/49 checks passed (0 failures)

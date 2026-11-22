@@ -28,6 +28,10 @@ Everything in the default path is permissively licensed and usable commercially.
 | Lemmy 0.19 (`dessalines/lemmy`) | **AGPL-3.0** | local test instance only (separate container, never linked or shipped) |
 | pict-rs (`asonix/pictrs`) | AGPL-3.0 | Lemmy's image backend, test instance only |
 
+| `redis-server` 7.0 (Debian package, inside the demo image) | BSD-3-Clause | queue inside the single-container demo |
+| `supervisor` (Debian package, inside the demo image) | BSD-style (Supervisor licence) | process manager for the single-container demo |
+| `python:3.11-slim` (Debian base image) | PSF and Debian free-software licences | base image |
+
 The AGPL items are separate containers used to exercise the connectors over HTTP; the IncuBrix service contains none of their code.
 
 ## Models / AI APIs

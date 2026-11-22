@@ -1,0 +1,9 @@
+## original full-stack verification after SSRF + queue changes 2026-11-23T00:59:08+05:30
+-- full-stack Docker test profile (offline): 151 passed, 3 warnings in 4.86s
+ Container inn-worker-1 Recreated   Container inn-api-1 Recreated  
+-- original stack /ready: {"status":"ready","mode":"simulation","checks":{"database":"ok","redis":"ok","storage":"ok"}}
+-- unsafe callback via the ORIGINAL stack API: CALLBACK_URL_REJECTED retryable= False
+-- ONE publish job through Postgres + forked RQ worker: succeeded
+-- Redis stopped -> expect 503 QUEUE_UNAVAILABLE on the original stack:
+   HTTP/1.1 503 Service Unavailable; retry-after: 5; error code=QUEUE_UNAVAILABLE retryable=True job_id present=True
+-- redis back: {"status":"ready","mode":"simulation","checks":{"database":"ok","redis":"ok","storage":"ok

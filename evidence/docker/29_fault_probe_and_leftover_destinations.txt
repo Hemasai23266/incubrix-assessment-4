@@ -1,0 +1,60 @@
+## Fault-probe and verification-leftover investigation (read-only queries, original compose Postgres) 2026-11-23T00:50:52+05:30
+
+destinations total: 27
+-- by creation batch (UTC minute):
+17:38 | 2 | discourse,lemmy
+17:39 | 10 | assisted,devto,discourse,ghost,lemmy,webhook
+18:15 | 2 | ghost,lemmy
+19:08 | 10 | assisted,devto,discourse,ghost,lemmy,webhook
+19:09 | 3 | devto,discourse,ghost
+-- the fault probe:
+27d32fcd662d4f1caaa3c73d30a3268b | fault probe | ghost | demoted | f | L0 | 2026-11-22 19:09:02.460266+00
+-- its certification rows:
+625226e62a0642dba206eddaf92a833d | failed | simulation | 2026-11-22 19:09:02.978164+00
+-- its failing certification error:
+CONTRACT_VIOLATION | ghost: response from POST /ghost/api/admin/posts/ -> posts[0] is missing expected field(s) ['url']
+-- its jobs:
+certify | failed | 27d32fcd662d4f1caaa3c73d30a3268b
+-- posts for it (test posts must be deleted):
+-- idempotency keys used by my probe:
+create_destination | fs-dest-1795374541
+certify:27d32fcd662d4f1caaa3c73d30a3268b | fs-cert-1795374542
+
+-- duplicate sample destinations (batch runner creates a NEW destination per run; two runs => two copies):
+Cert Discourse | 2
+Disclosure Forum | 2
+Hindi Forum | 2
+No Promo Lemmy | 2
+Rejecting Devto | 2
+Sample Devto | 2
+Sample Discourse | 2
+Sample Ghost | 2
+Sample Lemmy | 2
+Sample Manual Community | 2
+Sample Partner | 2
+Short Title Lemmy | 2
+
+## Findings
+1. The "fault probe" destination (ghost connector, id 27d32fcd..., now `demoted`) was created by me at 19:09 UTC to prove that the
+   renamed-field fault switch reaches the RQ worker. Its single certification FAILED with CONTRACT_VIOLATION (missing `url`), which
+   is exactly the expected outcome, and the destination was demoted by the harness. It has 1 job, 1 certification row, NO posts, so
+   no test post was left on any platform. Mock platform only (simulation mode); nothing real was contacted.
+2. The same verification step ran `cli.batch_runner` against the rebuilt stack, which registers a NEW destination per sample file on
+   every run (idempotency keys include a run id). That is why 12 sample destinations exist twice (17:39 and 19:08 batches).
+   So the footprint of my last verification on the ORIGINAL stack was 13 extra rows (12 sample duplicates + the probe), not 1 as
+   first reported. Totals now: 27 destinations (expected for a clean run: 14).
+3. All of it is simulation-only development data in the original Postgres volume. No real credentials, posts or platforms.
+4. Nothing was deleted: the API has no destination-delete endpoint and I was not asked to modify the original data.
+
+## Suggested cleanup (NOT executed; run only if you want a tidy original stack)
+  docker compose exec -T db psql -U incubrix -d incubrix -c \
+    "delete from certifications where destination_id in (select id from destinations where name='fault probe' or created_at >= '2026-11-22 19:08:00+00');
+     delete from jobs where payload->>'destination_id' in (select id from destinations where name='fault probe' or created_at >= '2026-11-22 19:08:00+00');
+     delete from destinations where name='fault probe' or created_at >= '2026-11-22 19:08:00+00';"
+(then the catalogue returns to 14 rows: the 12 first-run samples + local-ghost + local-lemmy). Back up the volume first.
+
+## Root-cause fix (small, proposed): make the batch runner reuse destinations by name instead of creating a new one per run.
+
+## Addendum (2026-11-23): footprint of the later SSRF/queue verification on the original stack
+No destinations were created. It added 2 job rows: one successful publish job (and its post row) against an existing "Sample Discourse"
+destination, and one failed QUEUE_UNAVAILABLE job (Redis deliberately stopped to observe the new retryable 503). Redis was restarted afterwards.

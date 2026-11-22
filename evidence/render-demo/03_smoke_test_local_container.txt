@@ -1,0 +1,13 @@
+PASS  GET /health (cold-start wait included)  [0.2 s]
+PASS  GET /ready: simulation mode, database/redis/storage ok  [{'database': 'ok', 'redis': 'ok', 'storage': 'ok'}]
+PASS  no token -> 401 error envelope
+PASS  demo catalogue present
+PASS  POST /publish -> 202 + job_id
+PASS  job succeeded with output manifest  [succeeded]
+PASS  same Idempotency-Key -> same job
+PASS  certification job (publish->status->delete->verify, MOCK platform)  [succeeded]
+PASS  over-long title -> DEST_SPEC_VIOLATION
+PASS  unsafe callback_url (cloud metadata address) -> 422 CALLBACK_URL_REJECTED
+PASS  file upload + download
+
+ALL PASSED
