@@ -7,3 +7,49 @@ __pycache__/
 evidence/local_store/
 *.xlsx
 *.pdf
+
+# --- additional protection (added before the first push) ---
+# environment files and credentials (only .env.example is meant to be committed)
+.env.local
+.env.production
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+# local databases and archives
+*.sqlite3
+*.sqlite
+*.zip
+
+# logs (the run logs kept as evidence stay tracked via the exception below)
+*.log
+!evidence/**/*.log
+
+# editors and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# build output, dependencies, coverage and tool caches
+node_modules/
+dist/
+build/
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.hypothesis/
+*.egg-info/
