@@ -1,0 +1,12 @@
+# EXPLICIT real-mode override: api and worker talk to the LOCAL Ghost and Lemmy containers instead of the mock platforms.
+#   docker compose -f docker-compose.yml -f docker-compose.real.yml up -d api worker
+#   docker compose -f docker-compose.yml -f docker-compose.real.yml --profile seed run --rm seed
+# The default `docker compose up` stays in simulation mode. Only destinations whose options.base_url points at the local
+# containers are reachable; nothing here can publish to an external platform unless you register such a destination yourself.
+services:
+  api:
+    environment:
+      SIMULATION_MODE: "false"
+  worker:
+    environment:
+      SIMULATION_MODE: "false"

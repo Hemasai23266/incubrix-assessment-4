@@ -56,11 +56,36 @@ Local, no Docker: `python -m venv .venv && .venv/bin/pip install -r requirements
 `SIMULATION_MODE=true` (the default) routes every connector to mock platforms through the **same HTTP code path** a real
 platform would use; nothing leaves the machine.
 
-### Real local instances (Ghost, Lemmy)
-`docker compose up` also starts Ghost (`:2368`) and Lemmy (`:8536`). Then
-`docker compose --profile seed run --rm seed` creates the Ghost owner + Admin key and a Lemmy community `incubrix_test`.
-Put the printed key in `.env` as `GHOST_ADMIN_KEY`, set `SIMULATION_MODE=false`, and register destinations with
-`options.base_url` pointing at those instances (see REPORT.md for exactly what was and was not verified).
+### Real local instances (Ghost, Lemmy): explicit real mode
+`docker compose up` always starts in **simulation mode** (mock platforms; nothing can reach a real platform). To post to the
+local Ghost and Lemmy containers you must opt in, on purpose:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.real.yml up -d api worker
+docker compose -f docker-compose.yml -f docker-compose.real.yml --profile seed run --rm seed   # repeatable, prints no secrets
+curl -H "Authorization: Bearer $API_TOKEN" -X POST -H "Idempotency-Key: demo-1" localhost:8000/api/v1/destinations/local-ghost/certify
+```
+The seed creates the Ghost owner + Admin key and the Lemmy community `incubrix_test`, writes the credentials to the `localcreds`
+volume (mode 0600, mounted **read-only** into api/worker, never printed) and registers `local-ghost` / `local-lemmy`
+(fixed ids and idempotency keys, so reruns create no duplicates). `credentials_ref` names are resolved from that volume first,
+then from environment variables. Go back to simulation with a plain `docker compose up -d`.
+Ghost runs with `security__staffDeviceVerification=false` **for local development only** (no mail server exists, so the
+verification email would make every repeat login fail); never disable it on a production Ghost.
+
+### Local-only credentials (NOT production credentials)
+These are throw-away values that exist only so the local test containers can start. They protect nothing, the containers
+are reachable only on your machine / the compose network, and they must never be reused anywhere else:
+
+| Where | Value | Used for |
+|---|---|---|
+| `docker/lemmy.hjson`, `scripts/seed_local.py` | Lemmy admin `incubrix` / `incubrix-local-only`; DB password `lemmy-local-only` | local Lemmy test instance |
+| `scripts/seed_local.py` | Ghost owner `owner@incubrix.local` / `incubrix-local-only-1!` | local Ghost test instance |
+| `.env.example` | `S3_ACCESS_KEY=local-access-key`, `S3_SECRET_KEY=local-secret-key`, `API_TOKEN=change-me-admin-token` | local storage and the demo API token |
+
+Real secrets never go in the repository: platform credentials are referenced by **name** (`credentials_ref`) and resolved from the
+read-only credentials volume or environment variables. The Ghost Admin key is generated per instance by the seed, stored with
+mode 0600 in that volume, and never printed or logged. A public deployment must set its own `API_TOKEN` and
+`CALLBACK_SIGNING_SECRET` (see section "Configuration").
 
 ## API (all under `/api/v1/`, Bearer token)
 

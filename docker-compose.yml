@@ -1,4 +1,6 @@
-# One command: `docker compose up --build`  (everything below uses local, throw-away credentials)
+# One command: `docker compose up --build`
+# Every credential below (postgres/lemmy-db passwords, S3 keys) is a LOCAL-ONLY throw-away value, NOT a production credential.
+# See README "Local-only credentials". Default mode is SIMULATION; real local Ghost/Lemmy posting needs docker-compose.real.yml.
 services:
   db:
     image: postgres:16-alpine
@@ -19,17 +21,19 @@ services:
     ports: ["9100:9100"]
   api: &app
     build: .
-    env_file: [{path: .env, required: false}, .env.example]
+    env_file: [.env.example, {path: .env, required: false}]   # later file wins: .env overrides the example defaults
     environment: &appenv
       DATABASE_URL: postgresql+psycopg://incubrix:incubrix@db:5432/incubrix
       REDIS_URL: redis://redis:6379/0
       JOB_BACKEND: rq
       S3_ENDPOINT_URL: http://s3:8333
       SIMULATION_MODE: ${SIMULATION_MODE:-true}
+      CREDENTIALS_DIR: /run/local-creds
     depends_on:
       db: {condition: service_healthy}
       redis: {condition: service_healthy}
       s3: {condition: service_started}
+    volumes: ["localcreds:/run/local-creds:ro"]    # seeded local credentials, read-only for api and worker
     ports: ["8000:8000"]
     healthcheck: {test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://localhost:8000/ready')"], interval: 5s, timeout: 5s, retries: 30}
   worker:
@@ -54,7 +58,9 @@ services:
   # ---- real local instances for end-to-end posts --------------------------------------------------
   ghost:
     image: ghost:5-alpine
-    environment: {url: "http://localhost:2368", database__client: sqlite3, database__connection__filename: /var/lib/ghost/content/data/ghost.db, NODE_ENV: development}
+    # LOCAL DEVELOPMENT ONLY: no mail server exists here, so staff device-verification emails would make every repeat
+    # login fail with HTTP 500. Never disable this on a production Ghost.
+    environment: {url: "http://localhost:2368", database__client: sqlite3, database__connection__filename: /var/lib/ghost/content/data/ghost.db, NODE_ENV: development, security__staffDeviceVerification: "false"}
     ports: ["2368:2368"]
     volumes: [ghostdata:/var/lib/ghost/content]
   lemmy-db:
@@ -76,9 +82,15 @@ services:
       lemmy-db: {condition: service_healthy}
       pictrs: {condition: service_started}
     ports: ["8536:8536"]
-  seed:                        # one-shot: creates Ghost owner + integration key and the Lemmy test community
+  seed:                        # `docker compose --profile seed run --rm seed` : repeatable, prints no secrets
     build: .
     profiles: [seed]
     command: python scripts/seed_local.py
-    depends_on: [ghost, lemmy]
-volumes: {pgdata: {}, s3data: {}, ghostdata: {}, lemmydb: {}, pictrs: {}}
+    env_file: [.env.example, {path: .env, required: false}]
+    environment: {CREDENTIALS_DIR: /run/local-creds, API_URL: "http://api:8000", GHOST_URL: "http://ghost:2368", LEMMY_URL: "http://lemmy:8536"}
+    volumes: ["localcreds:/run/local-creds"]
+    depends_on:
+      api: {condition: service_healthy}
+      ghost: {condition: service_started}
+      lemmy: {condition: service_started}
+volumes: {pgdata: {}, s3data: {}, ghostdata: {}, lemmydb: {}, pictrs: {}, localcreds: {}}
