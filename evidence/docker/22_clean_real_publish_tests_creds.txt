@@ -1,0 +1,20 @@
+## clean local-ghost certify job=75de5c73d3bf42719d16acaaea27a093
+status: succeeded | error: None | duration_s: 0.8293
+  step validate OK
+  step publish OK
+  step get_status_live OK
+  step delete OK
+  step verify_deleted OK
+## clean local-lemmy certify job=f4789cc619bc4bf4ae7b7a01eca967c3
+status: succeeded | error: None | duration_s: 0.5872
+  step validate OK
+  step publish OK
+  step get_status_live OK
+  step delete OK
+  step verify_deleted OK
+## clean-project tests in Docker (offline)
+68 passed, 1 warning in 3.68s
+## credential exposure checks (clean project): matches of the Ghost key secret
+  api logs: 0  worker logs: 0  evidence/: 0  tracked: 0
+  volume perms: -rw------- GHOST_ADMIN_KEY -rw------- LEMMY_PASSWORD 
+  destinations in clean catalogue: ['local-ghost', 'local-lemmy']

@@ -1,0 +1,19 @@
+## local-ghost certify job=aa75c2d8a1bb4ec090d5bf8b4a58fa04 (HTTP 202 body: {"job_id":"aa75c2d8a1bb4ec090d5bf8b4a58fa04","status":"queued","status_url":"/api/v1/jobs/aa75c2d8a1bb4ec090d5bf8b4a58fa04","idempotent_replay":false})
+status: succeeded | error: None | duration_s: 1.0824
+  step validate OK 
+  step publish OK http://localhost:2368/incubrix-certification-test-post-1795371366/
+  step get_status_live OK http://localhost:2368/incubrix-certification-test-post-1795371366/
+  step delete OK 
+  step verify_deleted OK 
+  evidence: http://localhost:8000/api/v1/files/certifications/local-ghost/a073d4e7edf44488beb19c6684e7c94f.json
+## local-lemmy certify job=078270b66faa4fa68a431620589bfd79 (HTTP 202 body: {"job_id":"078270b66faa4fa68a431620589bfd79","status":"queued","status_url":"/api/v1/jobs/078270b66faa4fa68a431620589bfd79","idempotent_replay":false})
+status: succeeded | error: None | duration_s: 0.4792
+  step validate OK 
+  step publish OK http://lemmy:8536/post/8
+  step get_status_live OK http://lemmy:8536/post/8
+  step delete OK 
+  step verify_deleted OK http://lemmy:8536/post/8
+  evidence: http://localhost:8000/api/v1/files/certifications/local-lemmy/9ade7e176aeb47a4859d750f1f996972.json
+## worker executed these jobs (RQ worker log, job lines only)
+{"timestamp": "2026-11-22T18:16:08.146666+00:00", "level": "INFO", "logger": "rq.worker", "job_id": "aa75c2d8a1bb4ec090d5bf8b4a58fa04", "correlation_id": "edcce7f68c7f4cb1a2d543dee892ebe0", "message":
+{"timestamp": "2026-11-22T18:16:10.469001+00:00", "level": "INFO", "logger": "rq.worker", "job_id": "078270b66faa4fa68a431620589bfd79", "correlation_id": "985fa22b91164cacaf418da33ce06b5e", "message":

@@ -1,0 +1,13 @@
+## clean project: docker compose up (DEFAULT simulation config) 2026-11-22T23:47:12+05:30
+pre-existing inn-clean volumes: 0
+up exit=0
+api: Up Less than a second (health: starting)
+db: Up 4 seconds (healthy)
+ghost: Up 4 seconds
+lemmy: Up Less than a second
+lemmy-db: Up 4 seconds (healthy)
+mocks: Up 4 seconds
+pictrs: Up 4 seconds
+redis: Up 5 seconds (healthy)
+s3: Up 3 seconds
+worker: Up 1 second

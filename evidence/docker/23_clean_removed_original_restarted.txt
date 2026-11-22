@@ -1,0 +1,11 @@
+## remove ONLY the inn-clean project (containers + its own volumes) 2026-11-22T23:48:26+05:30
+ Container inn-clean-lemmy-1 Removed   Container inn-clean-ghost-1 Removed   Container inn-clean-mocks-1 Removed   Container inn-clean-worker-1 Removed   Container inn-clean-api-1 Removed   Container inn-clean-pictrs-1 Removed   Container inn-clean-lemmy-db-1 Removed   Container inn-clean-redis-1 Removed   Container inn-clean-db-1 Removed   Container inn-clean-s3-1 Removed   Volume inn-clean_pgdata Removing   Volume inn-clean_localcreds Removing   Volume inn-clean_pictrs Removing   Volume inn-clean_s3data Removing   Network inn-clean_default Removing   Volume inn-clean_lemmydb Removing   Volume inn-clean_ghostdata Removing   Volume inn-clean_pictrs Removed   Volume inn-clean_pgdata Removed   Volume inn-clean_s3data Removed   Volume inn-clean_localcreds Removed   Volume inn-clean_lemmydb Removed   Volume inn-clean_ghostdata Removed   Network inn-clean_default Removed   Image inn-clean-mocks:latest Removed   Image inn-clean-tests:latest Removed   Image inn-clean-worker:latest Removed   Image inn-clean-api:latest Removed   Image inn-clean-seed:latest Removed  
+inn-clean containers left: 0
+inn-clean volumes left: 0
+ORIGINAL volumes still present: inn_ghostdata inn_lemmydb inn_localcreds inn_pgdata inn_pictrs inn_s3data 
+
+## restart ORIGINAL project in default (simulation) config
+ Container inn-api-1 Recreate   Container inn-worker-1 Recreate   Container inn-worker-1 Recreated   Container inn-api-1 Recreated   Container inn-db-1 Started   Container inn-ghost-1 Started   Container inn-pictrs-1 Started   Container inn-redis-1 Started   Container inn-s3-1 Started   Container inn-mocks-1 Started   Container inn-lemmy-db-1 Started   Container inn-worker-1 Started   Container inn-api-1 Started   Container inn-lemmy-1 Started  
+api: {"status":"ready","mode":"simulation","checks":{"database":"ok","redis":"ok","storage":"ok"}}
+lemmy http 200, ghost http 200
+api: Up 4 seconds (health: starting);db: Up 8 seconds (healthy);ghost: Up 8 seconds;lemmy: Up 4 seconds;lemmy-db: Up 7 seconds (healthy);mocks: Up 8 seconds;pictrs: Up 8 seconds;redis: Up 8 seconds (healthy);s3: Up 8 seconds;worker: Up 4 seconds;

@@ -1,0 +1,24 @@
+### seed run 1  2026-11-22T23:45:50+05:30
+Ghost: owner ready, admin key created and stored in the credentials volume
+Lemmy: community 'incubrix_test' already existed
+destination local-ghost: HTTP 201 (created)
+destination local-lemmy: HTTP 201 (created)
+catalogue rows for local destinations: 2 (expected 2)
+done (no secret values are printed)
+exit=0
+### seed run 2  2026-11-22T23:45:52+05:30
+Ghost: existing admin key is still valid; reused (nothing created)
+Lemmy: community 'incubrix_test' already existed
+destination local-ghost: HTTP 200 (already registered)
+destination local-lemmy: HTTP 200 (already registered)
+catalogue rows for local destinations: 2 (expected 2)
+done (no secret values are printed)
+exit=0
+### seed run 3  2026-11-22T23:45:54+05:30
+Ghost: existing admin key is still valid; reused (nothing created)
+Lemmy: community 'incubrix_test' already existed
+destination local-ghost: HTTP 200 (already registered)
+destination local-lemmy: HTTP 200 (already registered)
+catalogue rows for local destinations: 2 (expected 2)
+done (no secret values are printed)
+exit=0

@@ -1,0 +1,10 @@
+## seed run #1 against existing (already seeded) Ghost+Lemmy - 2026-11-22T23:25:19+05:30
+          ^^^^^^^^^^^^^^^^^^^
+  File "/srv/scripts/seed_local.py", line 40, in seed_ghost
+    r.raise_for_status()
+  File "/usr/local/lib/python3.11/site-packages/httpx/_models.py", line 829, in raise_for_status
+    raise HTTPStatusError(message, request=request, response=self)
+httpx.HTTPStatusError: Server error '500 Internal Server Error' for url 'http://ghost:2368/ghost/api/admin/session/'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500
+
+exit=0

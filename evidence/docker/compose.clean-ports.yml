@@ -1,0 +1,7 @@
+# Used ONLY for the isolated clean-start verification (project name inn-clean): different host ports, so it cannot clash with the main stack.
+services:
+  api:   {ports: !override ["18000:8000"]}
+  mocks: {ports: !override ["19100:9100"]}
+  s3:    {ports: !override ["18333:8333"]}
+  ghost: {ports: !override ["12368:2368"]}
+  lemmy: {ports: !override ["18536:8536"]}

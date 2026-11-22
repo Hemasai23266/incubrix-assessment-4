@@ -1,0 +1,15 @@
+## recreate ghost/api/worker in REAL mode (volumes untouched) 2026-11-22T23:45:00+05:30
+ Container inn-db-1 Running 
+ Container inn-ghost-1 Recreate 
+ Container inn-api-1 Recreate 
+ Container inn-worker-1 Recreate 
+ Container inn-ghost-1 Recreated 
+ Container inn-worker-1 Recreated 
+ Container inn-api-1 Recreated 
+ Container inn-db-1 Healthy 
+ Container inn-redis-1 Healthy 
+ Container inn-ghost-1 Started 
+ Container inn-worker-1 Started 
+ Container inn-api-1 Started 
+api /ready -> {"status":"ready","mode":"live","checks":{"database":"ok","redis":"ok","storage":"ok"}}
+inn_ghostdata inn_lemmydb inn_localcreds inn_pgdata inn_pictrs inn_s3data 

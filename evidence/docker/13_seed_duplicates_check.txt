@@ -1,0 +1,2 @@
+total catalogue rows: 14 | local rows: [('local-ghost', 'ghost'), ('local-lemmy', 'lemmy')]
+duplicate local ids/names: False

@@ -1,0 +1,14 @@
+{
+  "destinations": 14,
+  "jobs": 14,
+  "posts": 11,
+  "certifications": 3,
+  "idempotency_records": 28,
+  "rule_events": 10,
+  "ghost_posts": [
+    "Coming soon"
+  ],
+  "lemmy_live_posts": 0,
+  "lemmy_site": "IncuBrix local Lemmy",
+  "ghost_owner_exists": true
+}

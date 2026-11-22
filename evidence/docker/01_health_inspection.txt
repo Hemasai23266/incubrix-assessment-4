@@ -1,0 +1,39 @@
+## docker compose ps (2026-11-22T23:23:48+05:30)
+SERVICE    STATUS                    PORTS
+api        Up 9 minutes (healthy)    0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+db         Up 15 minutes (healthy)   5432/tcp
+ghost      Up 13 minutes             0.0.0.0:2368->2368/tcp, [::]:2368->2368/tcp
+lemmy      Up 14 minutes             0.0.0.0:8536->8536/tcp, [::]:8536->8536/tcp
+lemmy-db   Up 14 minutes (healthy)   5432/tcp
+mocks      Up 15 minutes             0.0.0.0:9100->9100/tcp, [::]:9100->9100/tcp
+pictrs     Up 15 minutes             6669/tcp, 8080/tcp
+redis      Up 15 minutes (healthy)   6379/tcp
+s3         Up 15 minutes             0.0.0.0:8333->8333/tcp, [::]:8333->8333/tcp
+worker     Up 9 minutes              8000/tcp
+
+## volumes
+inn_ghostdata
+inn_lemmydb
+inn_pgdata
+inn_pictrs
+inn_s3data
+
+## compose config services
+ghost lemmy-db pictrs lemmy s3 mocks redis seed tests db worker api 
+## API /health /ready
+{"status":"ok"}
+{"status":"ready","checks":{"database":"ok","redis":"ok","storage":"ok"}}
+## redis
+PONG
+## postgres
+/run/postgresql:5432 - accepting connections
+## s3
+s3 http 200
+## ghost
+ghost http 200
+## lemmy
+{"site_view":{"site":{"id":1,"name":"IncuBrix local Lemmy","published":"2026-11-22T17:39:31.136672Z","actor_id":"http://
+## worker
+worker-1  | {"timestamp": "2026-11-22T17:44:40.468175+00:00", "level": "INFO", "logger": "rq.worker", "job_id": "-", "correlation_id": "-", "message": "Subscrib
+worker-1  | {"timestamp": "2026-11-22T17:44:40.470980+00:00", "level": "INFO", "logger": "rq.worker", "job_id": "-", "correlation_id": "-", "message": "*** List
+worker-1  | {"timestamp": "2026-11-22T17:44:40.471740+00:00", "level": "INFO", "logger": "rq.worker", "job_id": "-", "correlation_id": "-", "message": "Cleaning

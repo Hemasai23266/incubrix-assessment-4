@@ -1,0 +1,96 @@
+[
+  {
+    "connector": "ghost",
+    "publish_job": "succeeded",
+    "error": null,
+    "live_url": "http://localhost:2368/compose-network-local-test-post-will-be-deleted/",
+    "platform_post_id": "6b032c749453ce000162ec3b",
+    "status_call": {
+      "status": "published",
+      "live_url": "http://localhost:2368/compose-network-local-test-post-will-be-deleted/"
+    },
+    "delete_call": {
+      "deleted": true
+    },
+    "status_after_delete": {
+      "http": 422,
+      "body": {
+        "error": {
+          "code": "PLATFORM_CONTENT_REJECTED",
+          "message": "[{'message': 'Resource not found error, cannot read post.', 'context': 'Post not found.', 'type': 'NotFoundError', 'details': None, 'property': None, 'help': None, 'code': None, 'id': 'd6bfbd20-e69d-11f1-a495-71630a23322c', 'ghostErrorCode': None}]",
+          "retryable": false,
+          "details": {
+            "platform_status": 404,
+            "platform_message": "[{'message': 'Resource not found error, cannot read post.', 'context': 'Post not found.', 'type': 'NotFoundError', 'details': None, 'property': None, 'help': None, 'code': None, 'id': 'd6bfbd20-e69d-11f1-a495-71630a23322c', 'ghostErrorCode': None}]"
+          }
+        }
+      }
+    },
+    "certification": "succeeded",
+    "certification_error": null,
+    "certification_steps": [
+      [
+        "validate",
+        true
+      ],
+      [
+        "publish",
+        true
+      ],
+      [
+        "get_status_live",
+        true
+      ],
+      [
+        "delete",
+        true
+      ],
+      [
+        "verify_deleted",
+        true
+      ]
+    ]
+  },
+  {
+    "connector": "lemmy",
+    "publish_job": "succeeded",
+    "error": null,
+    "live_url": "http://lemmy:8536/post/6",
+    "platform_post_id": "6",
+    "status_call": {
+      "status": "published",
+      "live_url": "http://lemmy:8536/post/6"
+    },
+    "delete_call": {
+      "deleted": true
+    },
+    "status_after_delete": {
+      "status": "deleted",
+      "live_url": "http://lemmy:8536/post/6"
+    },
+    "certification": "succeeded",
+    "certification_error": null,
+    "certification_steps": [
+      [
+        "validate",
+        true
+      ],
+      [
+        "publish",
+        true
+      ],
+      [
+        "get_status_live",
+        true
+      ],
+      [
+        "delete",
+        true
+      ],
+      [
+        "verify_deleted",
+        true
+      ]
+    ]
+  }
+]

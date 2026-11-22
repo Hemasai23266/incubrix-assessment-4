@@ -1,0 +1,3 @@
+## stop the ORIGINAL project (no -v, no removal) 2026-11-22T23:47:08+05:30
+ Container inn-lemmy-1 Stopped   Container inn-ghost-1 Stopped   Container inn-mocks-1 Stopped   Container inn-lemmy-db-1 Stopped   Container inn-worker-1 Stopped   Container inn-api-1 Stopped   Container inn-pictrs-1 Stopped   Container inn-db-1 Stopped   Container inn-redis-1 Stopped   Container inn-s3-1 Stopped  
+inn_ghostdata inn_lemmydb inn_localcreds inn_pgdata inn_pictrs inn_s3data 

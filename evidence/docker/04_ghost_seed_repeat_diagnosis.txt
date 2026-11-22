@@ -1,0 +1,23 @@
+## Ghost session login on already-set-up Ghost (repeat of seed step)
+HTTP/1.1 500 Internal Server Error
+X-Powered-By: Express
+Content-Version: v5.130
+Vary: Accept-Version, Origin, Accept-Encoding
+Cache-Control: no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0
+Access-Control-Allow-Origin: http://localhost:2368
+Content-Type: application/json; charset=utf-8
+Content-Length: 339
+ETag: W/"153-YACm+a9CdeIK7VO7OP/tYj6XJpM"
+Set-Cookie: ghost-admin-api-session=[REDACTED]; Path=/ghost; Expires=Fri, 21 May 2027 17:54:18 GMT; HttpOnly; SameSite=Lax
+Date: Sun, 22 Nov 2026 17:54:18 GMT
+Connection: keep-alive
+
+## ghost logs (tail, errors)
+ghost-1  | EmailCtaNode must implement "decorate" method
+ghost-1  | EmailCtaNode should implement "importJSON" method to ensure JSON and default HTML serialization works as expected
+ghost-1  | EmailCtaNode should implement "exportJSON" method to ensure JSON and default HTML serialization works as expected
+ghost-1  | [2026-11-22 17:54:18] [31mERROR[39m "POST /ghost/api/admin/session/" [31m500[39m 10176ms
+ghost-1  | [31mFailed to send email. Please check your site configuration and try again.[39m
+ghost-1  | [33m"Please see https://ghost.org/docs/config/#mail for instructions on configuring email."[39m
+ghost-1  | [1m[37mError ID:[39m[22m
+ghost-1  | [90mEmailError: Failed to send email. Please check your site configuration and try again.

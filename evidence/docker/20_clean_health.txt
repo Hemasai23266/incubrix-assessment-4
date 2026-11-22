@@ -1,0 +1,18 @@
+## clean project health after ~5s 2026-11-22T23:47:27+05:30
+api   : {"status":"ready","mode":"simulation","checks":{"database":"ok","redis":"ok","storage":"ok"}}
+ghost : http 200
+lemmy : http 200
+s3    : http 200
+mocks : {"ok":true,"instances":["discourse","discourse-b","lemmy","devto","ghost","partner-site","partner-site-b"]}
+api: Up 7 seconds (healthy)
+db: Up 11 seconds (healthy)
+ghost: Up 11 seconds
+lemmy: Up 7 seconds
+lemmy-db: Up 10 seconds (healthy)
+mocks: Up 10 seconds
+pictrs: Up 11 seconds
+redis: Up 11 seconds (healthy)
+s3: Up 10 seconds
+worker: Up 7 seconds
+lemmy restarts: 0
+volumes: inn-clean_ghostdata inn-clean_lemmydb inn-clean_localcreds inn-clean_pgdata inn-clean_pictrs inn-clean_s3data 
