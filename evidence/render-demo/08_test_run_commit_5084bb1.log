@@ -1,0 +1,52 @@
+# Demo image test driver, 2026-11-23T08:49:24Z, code commit 5084bb1, image built in 07_build_commit_5084bb1.log
+PASS  container starts and /ready returns 200  [3.0 s after docker run]
+PASS  demo catalogue seeded and 7/7 mock certifications passed  [seed finished 1.4 s after ready]
+PASS  supervisord: redis RUNNING
+PASS  supervisord: api RUNNING
+PASS  supervisord: worker RUNNING
+PASS  supervisord: seed finished cleanly (EXITED)
+PASS  GET /health 200
+PASS  GET /ready: database, redis, storage ok; mode simulation  [{"database": "ok", "redis": "ok", "storage": "ok"}]
+PASS  unauthenticated API call is rejected with the error envelope
+PASS  no real-platform credentials in the container environment
+PASS  12 demo destinations present
+PASS  POST /publish returns 202 + job_id + Location
+PASS  worker processed the job (succeeded, progress 100, manifest present)  [succeeded]
+PASS  same Idempotency-Key returns the same job
+PASS  exactly one post row for that key  [rows=1]
+PASS  same key + different body -> 422 IDEMPOTENCY_KEY_REUSED
+PASS  timeout-after-create: first attempt fails retryable PLATFORM_UNAVAILABLE
+PASS  retry with the same key re-runs the SAME job and succeeds
+PASS  still exactly one post row after the retry  [rows=1]
+PASS  11 unsafe callback URLs (localhost, private/link-local/metadata IPs, internal names, odd IP spellings, bad port, http) all rejected 422 CALLBACK_URL_REJECTED  [11/11 rejected]
+PASS  nothing reached the local receiver  [0 requests received]
+PASS  a job with no callback still succeeds afterwards
+PASS  60 concurrent publishes all accepted (202)  [0 rejected]
+PASS  16 concurrent same-key requests collapse to ONE job  [1 distinct job ids]
+PASS  all concurrent jobs succeeded  [61/61 in 10.4 s]
+PASS  no 'database is locked' in any log line
+PASS  exactly one post row for the concurrent same-key request
+PASS  Redis restart with queued jobs: AOF kept the queue, all 5 jobs completed  [['succeeded', 'succeeded', 'succeeded', 'succeeded', 'succeeded']]
+PASS  Redis data LOST (flushall): worker start re-enqueues orphaned jobs, all 5 completed  [queue length after flush=0, states=['succeeded', 'succeeded', 'succeeded', 'succeeded', 'succeeded']]
+PASS  Redis DOWN at submit time: retryable 503 QUEUE_UNAVAILABLE with Retry-After  [HTTP 503 QUEUE_UNAVAILABLE]
+PASS  that job is failed/retryable (not stuck 'queued')
+PASS  after Redis recovers, the SAME key re-runs the SAME job and it succeeds  [succeeded]
+PASS  API still healthy after the Redis outage
+PASS  file upload 201 and download returns the same bytes  [http://localhost:10000/api/v1/files/uploads/8322585e69540da4/pic.png]
+PASS  download link points at PUBLIC_BASE_URL
+PASS  path traversal on download is refused
+PASS  certification evidence file is downloadable from local storage
+PASS  renamed-field switch reaches the WORKER: certification fails CONTRACT_VIOLATION and destination is demoted  [failed CONTRACT_VIOLATION demoted]
+PASS  switch off + re-certify: destination recovers
+PASS  expired-token switch: CONNECTION_AUTH_EXPIRED
+PASS  frequency cap on the demo destination: 2nd post rescheduled
+PASS  promotional post to no-promo destination blocked
+PASS  rate limit: 300/min default returns 429 RATE_LIMITED when exceeded  [80 of 420 requests limited, 340 served]
+PASS  `docker restart` (same container filesystem): data kept, seed re-run adds no duplicates  [12 -> 12 destinations]
+PASS  graceful shutdown (docker stop): exits 0 well inside the grace period  [exit 0 in 2.7 s]
+PASS  API token never appears in container logs
+PASS  fresh container (what a Render redeploy/wake looks like): old job is gone (ephemeral data loss)
+PASS  fresh container: catalogue re-seeded automatically
+PASS  memory well under Render free 512 MB  [152.9MiB / 7.596GiB | cpu 0.43%]
+
+49/49 checks passed

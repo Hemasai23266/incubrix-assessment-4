@@ -206,6 +206,8 @@ a destination row holds only `credentials_ref`, the **name** of an environment v
 `pytest -q` runs 403 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
 (including concurrent requests and timeout-after-publish), secret redaction, OpenAPI freshness and the batch runner.
 
+Evidence for every must-have, Integration Standard point and REPORT.md claim is indexed in [evidence/INDEX.md](evidence/INDEX.md).
+
 ## What is not built
 Advanced and Outstanding levels (CSV import, AI rules capture, relevance scoring, tailoring, extra connectors, recommender,
 metrics beyond three connectors' basic `fetch_metrics`, recertification scheduler, 150-destination research) are **not** implemented.

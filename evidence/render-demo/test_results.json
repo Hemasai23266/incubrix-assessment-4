@@ -1,30 +1,30 @@
 {
-  "run_utc": "2026-11-22T19:33:38.847301+00:00",
+  "run_utc": "2026-11-23T08:52:46.371547+00:00",
   "image": "incubrix-render-demo",
   "passed": 49,
   "total": 49,
   "notes": {
-    "start_to_ready_s": 2.4,
-    "ready_to_seed_done_s": 1.9,
+    "start_to_ready_s": 3.0,
+    "ready_to_seed_done_s": 1.4,
     "post_while_redis_down": {
       "http_status": 503,
       "code": "QUEUE_UNAVAILABLE",
       "retry_after": "5"
     },
     "docker_restart_keeps_data": true,
-    "fresh_start_to_ready_s": 2.4,
-    "memory_after_load": "153.2MiB / 7.596GiB | cpu 0.79%"
+    "fresh_start_to_ready_s": 3.2,
+    "memory_after_load": "152.9MiB / 7.596GiB | cpu 0.43%"
   },
   "results": [
     {
       "check": "container starts and /ready returns 200",
       "status": "PASS",
-      "detail": "2.4 s after docker run"
+      "detail": "3.0 s after docker run"
     },
     {
       "check": "demo catalogue seeded and 7/7 mock certifications passed",
       "status": "PASS",
-      "detail": "seed finished 1.9 s after ready"
+      "detail": "seed finished 1.4 s after ready"
     },
     {
       "check": "supervisord: redis RUNNING",
@@ -139,7 +139,7 @@
     {
       "check": "all concurrent jobs succeeded",
       "status": "PASS",
-      "detail": "61/61 in 6.4 s"
+      "detail": "61/61 in 10.4 s"
     },
     {
       "check": "no 'database is locked' in any log line",
@@ -184,7 +184,7 @@
     {
       "check": "file upload 201 and download returns the same bytes",
       "status": "PASS",
-      "detail": "http://localhost:10000/api/v1/files/uploads/be84df4cf9636aeb/pic.png"
+      "detail": "http://localhost:10000/api/v1/files/uploads/8322585e69540da4/pic.png"
     },
     {
       "check": "download link points at PUBLIC_BASE_URL",
@@ -229,7 +229,7 @@
     {
       "check": "rate limit: 300/min default returns 429 RATE_LIMITED when exceeded",
       "status": "PASS",
-      "detail": "219 of 420 requests limited, 201 served"
+      "detail": "80 of 420 requests limited, 340 served"
     },
     {
       "check": "`docker restart` (same container filesystem): data kept, seed re-run adds no duplicates",
@@ -239,7 +239,7 @@
     {
       "check": "graceful shutdown (docker stop): exits 0 well inside the grace period",
       "status": "PASS",
-      "detail": "exit 0 in 2.6 s"
+      "detail": "exit 0 in 2.7 s"
     },
     {
       "check": "API token never appears in container logs",
@@ -259,7 +259,7 @@
     {
       "check": "memory well under Render free 512 MB",
       "status": "PASS",
-      "detail": "153.2MiB / 7.596GiB | cpu 0.79%"
+      "detail": "152.9MiB / 7.596GiB | cpu 0.43%"
     }
   ]
 }

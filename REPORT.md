@@ -1,5 +1,7 @@
 # REPORT: Long-Tail Distribution Connector Service
 
+> Evidence index: every claim below, the nine must-haves and the ten Integration Standard points are mapped to files in [evidence/INDEX.md](evidence/INDEX.md).
+
 ## 1. Approaches considered and why this one
 | Decision | Options | Chosen and why |
 |---|---|---|
@@ -16,8 +18,8 @@
 * **Rules engine**: frequency cap (rolling window, UTC, test posts excluded, `reschedule_at` returned), self-promotion, link policy (`allowed|forbidden|max:N`), AI disclosure, destination status/automation. On my own 16-case labelled set: 7/7 violations caught, 0 missed, 0 false positives (`evidence/rule_safety.json`). **This is my set, not IncuBrix's hidden one.**
 * **Reliability**: 100/100 simulated publishes succeeded; a retry storm of 60 submissions over 20 keys produced exactly 20 posts (0 duplicates); timeout-after-create and 6 concurrent same-key requests also produce one post (`tests/test_hard_cases.py`).
 * **Hard cases**: every item in the brief except the CSV one has a test; see `evidence/hard_cases.md`.
-* **Integration Standard**: compose stack (Postgres, Valkey (Redis-compatible, BSD-3), RQ worker, SeaweedFS S3, mocks, Ghost, Lemmy) starts with one command and the batch runner passes 12/12 against it (`evidence/batch_run_docker/`); `openapi.yaml` is generated and a test fails if it is stale; 202 + job polling + HMAC callbacks; `Idempotency-Key` on POSTs; JSON error envelope; env-only config; upload + download links; JSON logs with correlation id and job id, secret redaction; `/health`, `/ready`; output manifest on every result; batch runner CLI.
-* **Tests**: 403 tests, all offline (`docker compose --profile test run --rm tests` or `pytest -q`), 403 passed. They include a 50-case callback-URL SSRF matrix, a DNS-rebinding test, a real-TLS test (connection pinned to the validated IP, certificate checked against the host name) and the queue-down 503.
+* **Integration Standard**: compose stack (Postgres, Valkey (Redis-compatible, BSD-3), RQ worker, SeaweedFS S3, mocks, Ghost, Lemmy) starts with one command and the batch runner passed 12/12 against it (`evidence/batch_run_docker/`, run on 2026-11-22 on EARLIER code, before the Idempotency-Key header became required; the same samples run through the current batch runner in-process in `tests/test_openapi_and_batch.py`); `openapi.yaml` is generated and a test fails if it is stale; 202 + job polling + HMAC callbacks; `Idempotency-Key` on POSTs; JSON error envelope; env-only config; upload + download links; JSON logs with correlation id and job id, secret redaction; `/health`, `/ready`; output manifest on every result; batch runner CLI.
+* **Tests**: 403 tests, all offline (`docker compose --profile test run --rm tests` or `pytest -q`), 403 passed. They include a callback-URL SSRF matrix of 56 unsafe URLs (`BAD_URLS` in `tests/test_netguard.py`, one parametrised test each, all passed in `evidence/pytest_report.txt`), a DNS-rebinding test, a real-TLS test (connection pinned to the validated IP, certificate checked against the host name) and the queue-down 503.
 
 ## 3. What does not work / is missing (honest list)
 * **Live-mode platform addresses are not SSRF-guarded**: a destination's registered `base_url` (and `connection.base_url` on the contract route) is called as given when `SIMULATION_MODE=false`, because real self-hosted platforms use private addresses. Authenticated operators only; live mode is refused by the public demo. An operator allow-list is the planned hardening.
@@ -27,8 +29,8 @@
 * **Exactly-once after a real timeout** depends on the platform honouring the idempotency header. Real Discourse/Lemmy/Dev.to/Ghost do not, so against them a timed-out publish stays in state `unknown` and needs human reconciliation. The mocks do honour it, which is how the tests pass.
 * `refresh_auth` is declared by the contract but not implemented for any connector (returns 501), because the Core platforms use long-lived API keys.
 * Frequency-cap time zones: all windows are computed in UTC; per-destination time zones are not modelled.
-* **Current state (local only):** the repository has **13 local commits** on `main`, **not pushed**: no remote is configured and nothing has been published to GitHub. Certification screenshots are present (4 images of the real local Ghost and Lemmy test posts, live and after deletion, in `evidence/certification/`). Render demo evidence is present (`evidence/render-demo/`: 49/49 checks, run **locally in Docker**). **The Render demo has not been deployed:** it was built and tested only on this machine, so there is no live demo URL, no measured Render cold start and no evidence from a real Render host.
-* **Still not done (needs the submitter):** deploying the live demo (must-have #9 cannot be claimed until then), recording the demo video, adding the reviewer to the private repository, and finishing the Submission Form (personal details, links, declaration). Docker verification ran on this one machine, including an isolated fresh-volume `inn-clean` project, but not on a separate clean machine. Passing the mock certifications of Discourse, Dev.to and the webhook is not live-platform verification: only Ghost and Lemmy were certified against real (local) software.
+* **Current state:** the repository has **18 commits** on `main`, all pushed to the private GitHub repository `Hemasai23266/incubrix-assessment-4` (`origin/main` equals the local `main` at commit `5084bb1`; later changes to documentation and evidence are local until committed). The demo is **deployed on Render** at `https://incubrix-longtail-demo-01m4.onrender.com` from that repository. On 2026-11-23, after the deploy of `5084bb1`, I checked from outside, without the token: `GET /health` returns `ok`, `GET /ready` reports simulation mode with database, queue and storage ok, a POST without a token returns 401, a wrong-method request returns the `405 METHOD_NOT_ALLOWED` envelope, and the live OpenAPI document is identical to `openapi.yaml`. These checks were typed commands, not saved files, so they have no evidence file. The deployed smoke test (`scripts/smoke_test_deployed.py`, needs the token) was reported by the submitter as passing on an EARLIER version of the code; **it has not been re-run on `5084bb1`** and its output is not stored in the repository. The Render cold-start time has not been measured (Render's documentation says about a minute). Certification screenshots are present (4 images of the real local Ghost and Lemmy test posts, live and after deletion, in `evidence/certification/`). The demo-image checks (`evidence/render-demo/`, 49/49) ran locally in Docker, not on the Render host; the latest run is on commit `5084bb1` (`evidence/render-demo/08_test_run_commit_5084bb1.log`) and the 2026-11-22 run on earlier code is kept as `evidence/render-demo/test_results_2026-11-22_earlier_code.json`.
+* **Still not done (needs the submitter):** recording the demo video, adding the reviewer to the private repository, finishing the Submission Form (personal details, links, declaration) and committing the latest documentation and evidence. The demo staying up for the whole review period is a commitment only the submitter can make. Docker verification ran on this one machine, including an isolated fresh-volume `inn-clean` project, but not on a separate clean machine. Passing the mock certifications of Discourse, Dev.to and the webhook is not live-platform verification: only Ghost and Lemmy were certified against real (local) software.
 
 ## 3a. Integration Standard: status after the audit (verified by tests, see `tests/`)
 | Point | Status | What was done / what remains |
@@ -42,32 +44,32 @@
 | 7 Files in and out | Yes, with limits | upload and URL input (`POST /files/from-url`, SSRF-hardened, 183 tests); a media URL inside a publish rendition is still only a reference |
 | 8 Logs and health | Yes | JSON logs with correlation id and job id; URL query strings are redacted |
 | 9 Output manifest | Yes | one builder for every result type; failed jobs carry an error instead of a result |
-| 10 Batch runner | Yes | 12/12 |
+| 10 Batch runner | Yes | `cli/batch_runner.py`; 12/12 in the Compose batch run of 2026-11-22 on EARLIER code (`evidence/batch_run_docker/`), not a result from commit `5084bb1`; the same samples also pass through the current runner in-process in `tests/test_openapi_and_batch.py` |
 
-## 3b. Free single-container demo (prepared, NOT deployed)
-A separate image (`deploy/render/`, see `docs/RENDER_DEPLOY.md`) runs API + RQ worker + Redis + SQLite under supervisord for a free
-host. **Differences from the main architecture:** SQLite instead of Postgres, local disk instead of S3, Redis inside the container,
+## 3b. Free single-container demo (deployed on Render)
+A separate image (`deploy/render/`, see `docs/RENDER_DEPLOY.md`) runs API + RQ worker + Valkey (Redis-compatible) + SQLite under supervisord for a free
+host. **Differences from the main architecture:** SQLite instead of Postgres, local disk instead of S3, Valkey inside the container,
 an RQ `SimpleWorker` instead of the forking worker, mock platforms only (no Ghost or Lemmy). **Limits:** data is ephemeral (a free host
 recreates the container on wake), the first request after idle is a cold start (about a minute per Render's documentation; not measured),
 and SQLite serialises writers. A Redis outage at submit time returns a retryable `503 QUEUE_UNAVAILABLE`; retrying with the same `Idempotency-Key` re-runs the same job.
-**Verified locally (49/49 checks, `evidence/render-demo/`):** start-up, shutdown (exit 0 in under 3 s), health and readiness, worker
+**Verified locally in Docker (49/49 checks on commit `5084bb1`, `evidence/render-demo/08_test_run_commit_5084bb1.log`; the earlier 2026-11-22 run is kept beside it):** start-up, shutdown (exit 0 in under 3 s), health and readiness, worker
 processing, 202 plus job polling, idempotency and timeout-retry, callback URL safety (11 unsafe URLs refused, nothing reaches a local receiver), 60 concurrent publishes with no 'database is locked',
-Redis restart with the queue preserved, Redis data loss with orphan recovery, file upload and download, fault switches, frequency cap,
-rate limit, restart versus fresh-container data loss, and no secrets in logs. **Not verified:** anything on a real Render host.
+queue-server (Valkey, still labelled "redis" in the check names) restart with the queue preserved, queue data loss with orphan recovery, file upload and download, fault switches, frequency cap,
+rate limit, restart versus fresh-container data loss, and no secrets in logs. **Not verified by a stored test run:** the deployed instance beyond the unauthenticated checks listed in section 3 (the authenticated smoke test has not been re-run on this code).
 **Callback SSRF (fixed):** `callback_url` used to accept any address, including internal services and the cloud metadata IP. It is now restricted to public HTTPS destinations with DNS pinning against rebinding (details in the README); HMAC signing is unchanged. **Queue outage (fixed):** a Redis failure at submit time used to return a 500 and leave the job `queued`; it now returns a retryable 503 and marks the job failed-but-retryable. **Two defects were found and fixed while building it** (both also affected the main compose stack): (1) the
 `/simulation/faults` switches lived in the API process, but with RQ the mock platform runs in the worker, so a renamed-field or
 expired-token switch silently did nothing (fixed: the switches are stored in Redis when RQ is used); (2) a forking worker discards the
 mock platform's in-memory state after every job (fixed for the demo with `SimpleWorker`; the main compose worker still forks, so
 cross-job retry behaviour against the mocks is only fully reproduced by the demo image and by the inline-job tests).
 
-## 4. Measured numbers (`evidence/metrics.json`, `evidence/rule_safety.json`)
+## 4. Measured numbers (`evidence/metrics.json`, `evidence/rule_safety.json`; both re-checked on commit `5084bb1`)
 Hardware: Windows 11 laptop, Docker Desktop, Python 3.11. Simulation numbers are in-process (no network), so they only show the framework overhead.
 | Metric | Value |
 |---|---|
-| Certification, simulation, mean per run (5 runs each) | discourse 0.04 s, lemmy 0.05 s, devto 0.04 s, ghost 0.03 s, webhook 0.03 s, assisted 0.003 s |
-| Certification, real local instances | Ghost 1.2-2.6 s, Lemmy 1.6-2.9 s (several runs, all passed) |
+| Certification, simulation, mean per run (5 runs each, 5/5 passed, `scripts/measure.py` on commit `5084bb1`) | discourse 0.06 s, lemmy 0.03 s, devto 0.02 s, ghost 0.03 s, webhook 0.03 s, assisted 0.003 s (the 2026-11-22 run on earlier code gave similar values: `evidence/metrics_2026-11-22_earlier_code.json`) |
+| Certification, real local instances | Ghost 1.2-2.6 s, Lemmy 1.4-2.9 s (several runs on 2026-11-22, all passed; `evidence/local_instances_store/`, `evidence/certification/`) |
 | Destinations certified | simulation 6 connector types; real local instances 2 (Ghost, Lemmy) |
-| Publish success rate, simulation | 100 / 100 |
+| Publish success rate, simulation | 100 / 100 (4.0 s in total) |
 | Duplicate posts under retry | 0 (60 submissions, 20 keys) |
 | Rule safety (my 16-case set) | 7 caught, 0 missed, 0 false positives |
 | Catalogue import, recommender precision | not measured (not built) |

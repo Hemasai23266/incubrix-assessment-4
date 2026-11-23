@@ -1,3 +1,5 @@
+> **HISTORICAL (kept unchanged below).** The table, including the "68 tests" figure, records the Docker verification done on EARLIER code. It is not the latest result. Latest verified results (code commit 5084bb1, 2026-11-23): host **403 passed** in `evidence/pytest_report.txt`, Docker **403 passed** in `evidence/docker_tests_summary.txt`. Index of all evidence: `evidence/INDEX.md`.
+
 # Docker verification (updated after changes 1-4 and Option A). Statuses = what was actually executed.
 
 | # | Check | Status | Evidence |

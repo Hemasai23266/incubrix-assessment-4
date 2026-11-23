@@ -1,0 +1,66 @@
+# Demo image build, 2026-11-23T08:49:16Z, code commit 5084bb1 (working tree differs only in docs/evidence files)
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.render
+#1 transferring dockerfile: 1.12kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.11-slim
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [ 1/12] FROM docker.io/library/python:3.11-slim@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535
+#4 resolve docker.io/library/python:3.11-slim@sha256:07d4824036af339fa1b6ef769cc99d9c10a141769538b52b3b597c84f7a7b535 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 45.17kB 0.0s done
+#5 DONE 0.0s
+
+#6 [ 2/12] RUN apt-get update  && apt-get install -y --no-install-recommends valkey-server valkey-tools supervisor  && rm -rf /var/lib/apt/lists/*  && useradd --create-home --uid 10001 app
+#6 CACHED
+
+#7 [ 3/12] WORKDIR /srv
+#7 CACHED
+
+#8 [ 4/12] COPY requirements.txt ./
+#8 CACHED
+
+#9 [ 5/12] RUN pip install --no-cache-dir -r requirements.txt
+#9 CACHED
+
+#10 [ 6/12] COPY app ./app
+#10 DONE 0.0s
+
+#11 [ 7/12] COPY cli ./cli
+#11 DONE 0.0s
+
+#12 [ 8/12] COPY scripts ./scripts
+#12 DONE 0.0s
+
+#13 [ 9/12] COPY samples ./samples
+#13 DONE 0.0s
+
+#14 [10/12] COPY openapi.yaml ./openapi.yaml
+#14 DONE 0.0s
+
+#15 [11/12] COPY deploy/render ./deploy/render
+#15 DONE 0.0s
+
+#16 [12/12] RUN sed -i 's/\r$//' deploy/render/entrypoint.sh deploy/render/supervisord.conf && chmod +x deploy/render/entrypoint.sh
+#16 DONE 0.2s
+
+#17 exporting to image
+#17 exporting layers
+#17 exporting layers 0.4s done
+#17 exporting manifest sha256:659081a0df802b1d4d09f0eb70038dd37e0662176114270967132c46d57c75c7 0.0s done
+#17 exporting config sha256:8000d8d8d4a9dca7790e1df45a962cf3a07b6d7d45a4eb9feef45ba1831e4753 0.0s done
+#17 exporting attestation manifest sha256:2d87e037b5c0e5eccf1d778e3da51407fa64e3547b958ea3d2a2459f62f17b3c 0.0s done
+#17 exporting manifest list sha256:3b5d4a8034b8e68572a6bdcb4e53f4a2d3ae63fe1d2742c49685b8bdb044891f 0.0s done
+#17 naming to docker.io/library/incubrix-render-demo:latest done
+#17 unpacking to docker.io/library/incubrix-render-demo:latest
+#17 unpacking to docker.io/library/incubrix-render-demo:latest 1.9s done
+#17 DONE 2.5s
