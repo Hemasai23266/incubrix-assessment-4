@@ -78,11 +78,15 @@ Send `Authorization: Bearer <API_TOKEN>` and a unique `Idempotency-Key` on every
 | AI-content disclosure | `"ai_generated": true` to `demo-ai-disclosure` without `disclosure` is blocked; add `"disclosure"` and it posts |
 | Non-English community | publish Hindi text to `demo-non-english` |
 | Callback URL safety | send `callback_url` = `https://169.254.169.254/...`, `http://...`, `https://localhost/...`: all give `422 CALLBACK_URL_REJECTED`; a public HTTPS URL is accepted and called with a signed `X-IncuBrix-Signature` |
+| URL input | `POST /api/v1/files/from-url` with a public https image URL and an `Idempotency-Key`; then poll the job. `http://169.254.169.254/...`, `http://localhost/...` and private addresses are rejected with `422 MEDIA_URL_REJECTED` |
+| Idempotent replay on admin routes | an `Idempotency-Key` is REQUIRED on every POST; send the same key twice to `/api/v1/connectors/{key}/disable`: the second answer carries `Idempotent-Replay: true` |
+| Standard error envelope | `GET /api/v1/publish` returns `405 METHOD_NOT_ALLOWED` in the same envelope |
 | Assisted (no automation) | publish to `demo-assisted` for a ready-to-post pack and checklist; nothing is posted |
 
 The switches are shared by everyone using the demo, so turn yours off when you are done.
 
 ## 7. Known limits (also in REPORT.md)
+* Live mode (real platforms) is not enabled here, and its platform `base_url` values are not SSRF-guarded (see README).
 * Mock platforms only: this demo proves the service, not real-platform behaviour.
 * SQLite serialises writers (`BEGIN IMMEDIATE`): fine for a demo, not for production load.
 * If Redis is down at submit time the API returns a retryable `503 QUEUE_UNAVAILABLE` (`Retry-After: 5`) and marks the job failed-but-retryable;

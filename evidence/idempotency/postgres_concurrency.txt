@@ -1,0 +1,9 @@
+engine: postgresql
+contract publish, 16 concurrent same key: statuses [200] | distinct bodies 1 | owners (no replay header) 1 | platform posts created 1
+faults, 16 concurrent same key: statuses [200] | owners 1
+disable, 16 concurrent same key: statuses [200] | owners 1
+publish JOB, 16 concurrent same key: statuses [202] | distinct job ids 1
+platform posts after everything: 2 (expected 2: one contract publish + one job publish)
+from-url metadata address: 422 MEDIA_URL_REJECTED
+405 envelope on postgres app: METHOD_NOT_ALLOWED
+certify on postgres: succeeded | manifest kind: certification

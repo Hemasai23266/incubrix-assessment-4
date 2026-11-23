@@ -39,7 +39,7 @@ only counts as certified after a real test post was published, confirmed live, r
 | `app/jobs.py` | RQ jobs, progress, HMAC-signed callbacks |
 | `app/mocks/platforms.py` | mock Discourse/Lemmy/Dev.to/Ghost/partner site with fault injection |
 | `cli/batch_runner.py` | batch runner; `samples/` holds 12 inputs |
-| `tests/` | unit + integration + end-to-end + hard cases (162 tests, no API keys) |
+| `tests/` | unit + integration + end-to-end + hard cases (403 tests, no API keys) |
 
 ## Quick start (under 10 commands)
 
@@ -77,6 +77,34 @@ verification email would make every repeat login fail); never disable it on a pr
 API in one container) for a free host such as Render. It is separate from `docker-compose.yml`, tested locally, and **not deployed**.
 `python scripts/test_render_demo.py` runs 49 checks against it.
 
+### URL input (`POST /api/v1/files/from-url`)
+`{"url": "https://...", "filename": "optional.png", "callback_url": "optional"}` with an `Idempotency-Key` returns `202` and a job. The worker
+downloads the file and stores it; the job result has `key`, `download_url`, `size`, `content_type`, `sha256`, the sanitised `source` and the manifest.
+Protections (all enforced on the connection, tested in `tests/test_fetcher.py`): http/https only; ports 80, 443, 8080, 8443 only; no credentials in the
+URL; no localhost, internal names or odd IP spellings; the host is resolved once per hop, EVERY address must be globally routable (loopback, private,
+link-local incl. cloud metadata, CGNAT, multicast, reserved and IPv6-embedded forms are refused) and the connection goes to that validated address
+(DNS rebinding); redirects are followed manually (at most 3) and every hop is validated again from scratch, https to http is refused; connect, read and
+overall timeouts; hard size limit (10 MB, checked from Content-Length and while streaming); `Content-Encoding` other than identity is refused; content-type
+allow-list (png, jpeg, gif, webp, mp4, plain text) and the downloaded bytes must match the declared type; the stored name is sanitised and lives under
+`fetched/<sha256 prefix>/`; no cookies, no Authorization header and no environment proxies are sent; logs and results never contain the query string, fragment or
+credentials of the URL. `MEDIA_FETCH_ALLOW_PRIVATE` exists for local development and tests only (the demo image refuses to start with it).
+Limits: media URLs inside a publish `rendition` are still passed to the destination as references; fetch a file first and use the stored link.
+
+### Output manifest
+Every job RESULT carries the same JSON manifest (`schema_version`, `kind`, `service`, `connector`, `providers` with versions, `models` (always empty: no AI model is used),
+`settings`, `seed` (null), `timings` incl. per-step times, `cost_estimate_usd` (0.0), `warnings`, `rights`): publish, assist pack, certification, cleanup,
+media fetch, and blocked or rescheduled publishes. A failed job has an `error` envelope instead of a result.
+
+### Configurable limits
+Upload size (`UPLOAD_MAX_BYTES`, default 25 MB), job timeout (`JOB_TIMEOUT_SECONDS`), idempotency claim lifetime and wait
+(`IDEMPOTENCY_CLAIM_TTL_SECONDS`, `IDEMPOTENCY_WAIT_SECONDS`) and every `MEDIA_FETCH_*` limit come from environment variables (see `.env.example`).
+
+### Live mode: platform addresses are NOT SSRF-guarded (known limitation)
+In live mode (`SIMULATION_MODE=false`) the registered `options.base_url` of a destination, and `connection.base_url` sent to the contract route, are called as
+given: no address validation, because real self-hosted platforms legitimately live on private addresses (the real-platform compose stack uses `http://lemmy:8536`).
+Only authenticated operators can register destinations. Do not expose live mode to untrusted registrants. The public demo refuses live mode.
+A planned hardening is an operator allow-list of platform hosts.
+
 ### Callback URL safety (SSRF protection)
 `callback_url` is checked when the job is submitted (`422 CALLBACK_URL_REJECTED`) and again, authoritatively, when the callback is sent:
 HTTPS only, port 443 or 8443 (`CALLBACK_ALLOWED_PORTS`), no credentials in the URL, no `localhost`/internal suffixes/single-label names, no odd IP spellings, and
@@ -112,8 +140,9 @@ mode 0600 in that volume, and never printed or logged. A public deployment must 
 | `POST /destinations/{id}/revoke` | partner revoked permission |
 | `POST /publish` | job: queue a post (needs `Idempotency-Key`) |
 | `GET /jobs/{job_id}` | `queued | running | succeeded | failed`, `progress 0-100`, `result`, `links` |
-| `POST /connectors/{key}/disable|enable` | kill switch |
+| `POST /connectors/{key}/disable|enable` | kill switch (`Idempotency-Key` required: a repeat replays the first answer) |
 | `POST /files`, `GET /files/{key}` | upload in / download out (S3-compatible storage) |
+| `POST /files/from-url` | **URL input**: job that safely downloads a file from a URL and stores it (see "URL input" below) |
 | `POST /simulation/faults/{instance}` | flip a mock failure (simulation mode only) |
 | `GET /health`, `GET /ready` | liveness / readiness (no auth) |
 | `POST /connector/v1/{connector_key}/{method}` | Appendix A contract: validate, publish, get_status, delete, fetch_metrics, refresh_auth, build_assist_pack |
@@ -125,7 +154,16 @@ mode 0600 in that volume, and never printed or logged. A public deployment must 
 `X-IncuBrix-Signature: sha256=HMAC_SHA256(CALLBACK_SIGNING_SECRET, raw_body)`.
 
 ### Idempotency
-Same key + same request = the same job, the work is never done twice. Same key + different request = `422 IDEMPOTENCY_KEY_REUSED`.
+**Every POST route requires an `Idempotency-Key` header** (1-200 printable ASCII characters, no spaces). Without it: `400 IDEMPOTENCY_KEY_REQUIRED`; malformed: `400 IDEMPOTENCY_KEY_INVALID`.
+This covers all 12 POST routes: `/publish`, `/destinations`, `/destinations/{id}/certify|revoke|check`, `/connectors/{key}/enable|disable`,
+`/maintenance/cleanup-test-posts`, `/files`, `/files/from-url`, `/simulation/faults/{instance}` and the connector contract `/connector/v1/{key}/{method}`.
+There is no alternative: on the contract route, including `publish`, the HTTP header is mandatory and a body field `idempotency_key` is NOT accepted in its place (the header value is the key sent on to the platform).
+* **Job routes** (`/publish`, `/certify`, `/cleanup-test-posts`, `/files/from-url`): same key + same request = the same job, the work is never done twice.
+* **Other routes**: a repeated identical request returns the FIRST response (header `Idempotent-Replay: true`) without doing the work again; concurrent
+  duplicates are serialised by a database unique constraint (one owner, the rest wait up to `IDEMPOTENCY_WAIT_SECONDS` and replay, or get
+  `409 IDEMPOTENCY_IN_PROGRESS`); a failed request releases the key so a retry can run.
+* Same key + different request = `422 IDEMPOTENCY_KEY_REUSED` everywhere.
+* This is idempotency of OUR API. It does not guarantee exactly-once delivery to an external platform that ignores idempotency keys.
 After a retryable failure (e.g. a timeout) the same key re-runs the same job; the `posts` row is unique per key and the key is
 also sent to the platform, so a post created before the timeout is reconciled rather than duplicated.
 
@@ -151,7 +189,13 @@ also sent to the platform, so a post created before the timeout is reconciled ra
 | `CONTRACT_VIOLATION` | no | platform changed its response (renamed field); certification fails and the destination is demoted |
 | `CALLBACK_URL_REJECTED` | no | `callback_url` failed the outbound-request safety checks (see below) |
 | `QUEUE_UNAVAILABLE` | yes | job queue (Redis) down: HTTP 503 with `Retry-After: 5`; retry with the same `Idempotency-Key` re-runs the same job |
-| `IDEMPOTENCY_KEY_REQUIRED` / `IDEMPOTENCY_KEY_REUSED` | no | idempotency problems |
+| `IDEMPOTENCY_KEY_REQUIRED` / `IDEMPOTENCY_KEY_INVALID` / `IDEMPOTENCY_KEY_REUSED` | no | missing, malformed or conflicting key |
+| `IDEMPOTENCY_IN_PROGRESS` | yes | a request with this key is still running (HTTP 409); retry shortly |
+| `METHOD_NOT_ALLOWED` | no | wrong HTTP method (HTTP 405, allowed methods in `details` and the `Allow` header) |
+| `HTTP_ERROR` | by status | any other framework-generated HTTP error, status preserved |
+| `MEDIA_URL_REJECTED` | no | URL input failed the safety checks (scheme, port, address, redirect) |
+| `MEDIA_FETCH_FAILED` | yes for timeouts, 5xx, 429 | the download failed |
+| `MEDIA_TOO_LARGE` / `MEDIA_TYPE_REJECTED` | no | over the size limit / type not allowed or bytes do not match the declared type |
 | `UNAUTHORIZED`, `NOT_FOUND`, `VALIDATION_ERROR`, `RATE_LIMITED`, `INTERNAL_ERROR` | - | service level |
 
 ## Configuration
@@ -159,7 +203,7 @@ Everything comes from environment variables; see `.env.example` (every setting i
 a destination row holds only `credentials_ref`, the **name** of an environment variable.
 
 ## Tests
-`pytest -q` runs 162 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
+`pytest -q` runs 403 tests offline: contract tests for all six connectors, every hard case, rules, idempotency
 (including concurrent requests and timeout-after-publish), secret redaction, OpenAPI freshness and the batch runner.
 
 ## What is not built

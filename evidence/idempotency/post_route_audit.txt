@@ -1,0 +1,16 @@
+12 POST routes in the OpenAPI document:
+  /api/v1/connectors/{key}/disable             REQUIRED  no-key HTTP 400   key HTTP 200->200 replay     same body
+  /api/v1/connectors/{key}/enable              REQUIRED  no-key HTTP 400   key HTTP 200->200 replay     same body
+  /api/v1/destinations                         REQUIRED  no-key HTTP 400   key HTTP 201->200 NO REPLAY  same body
+  /api/v1/destinations/{dest_id}/certify       REQUIRED  no-key HTTP 400   key HTTP 202->202 replay     body differs
+  /api/v1/destinations/{dest_id}/check         REQUIRED  no-key HTTP 400   key HTTP 200->200 replay     same body
+  /api/v1/destinations/{dest_id}/revoke        REQUIRED  no-key HTTP 400   key HTTP 200->200 replay     same body
+  /api/v1/files                                REQUIRED  no-key HTTP 400   key HTTP 201->201 NO REPLAY  same body
+  /api/v1/files/from-url                       REQUIRED  no-key HTTP 400   key HTTP 202->202 replay     body differs
+  /api/v1/maintenance/cleanup-test-posts       REQUIRED  no-key HTTP 400   key HTTP 202->202 replay     body differs
+  /api/v1/publish                              REQUIRED  no-key HTTP 400   key HTTP 202->202 replay     body differs
+  /api/v1/simulation/faults/{instance}         REQUIRED  no-key HTTP 400   key HTTP 200->200 replay     same body
+  /connector/v1/{connector_key}/{method}       REQUIRED  no-key HTTP 400   key HTTP 200->200 replay     same body
+
+REQUIRED on: 12 | optional (accepted, replayed) on: 0
+optional ones: []

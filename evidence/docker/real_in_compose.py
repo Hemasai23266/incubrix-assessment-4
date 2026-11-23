@@ -26,11 +26,11 @@ with TestClient(app) as c:
             conn = {"base_url": d["options"]["base_url"], "token": os.environ.get("GHOST_ADMIN_KEY") if k == "ghost" else None,
                     "username": "incubrix", "password": os.environ.get("LEMMY_PASSWORD")}
             h = {}
-            st = c.post(f"/connector/v1/{k}/get_status", json={"platform_post_id": pid, "connection": conn, "destination": d}, headers=H)
+            st = c.post(f"/connector/v1/{k}/get_status", json={"platform_post_id": pid, "connection": conn, "destination": d}, headers={**H, "Idempotency-Key": f"gs1-{k}"})
             rec["status_call"] = st.json()
-            dl = c.post(f"/connector/v1/{k}/delete", json={"platform_post_id": pid, "connection": conn, "destination": d}, headers=H)
+            dl = c.post(f"/connector/v1/{k}/delete", json={"platform_post_id": pid, "connection": conn, "destination": d}, headers={**H, "Idempotency-Key": f"del-{k}"})
             rec["delete_call"] = dl.json()
-            st2 = c.post(f"/connector/v1/{k}/get_status", json={"platform_post_id": pid, "connection": conn, "destination": d}, headers=H)
+            st2 = c.post(f"/connector/v1/{k}/get_status", json={"platform_post_id": pid, "connection": conn, "destination": d}, headers={**H, "Idempotency-Key": f"gs2-{k}"})
             rec["status_after_delete"] = st2.json() if st2.status_code == 200 else {"http": st2.status_code, "body": st2.json()}
         # 2) full certification
         cr = c.post(f"/api/v1/destinations/{did}/certify", headers={**H, "Idempotency-Key": f"cert-{k}"})

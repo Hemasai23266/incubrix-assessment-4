@@ -17,9 +17,11 @@
 * **Reliability**: 100/100 simulated publishes succeeded; a retry storm of 60 submissions over 20 keys produced exactly 20 posts (0 duplicates); timeout-after-create and 6 concurrent same-key requests also produce one post (`tests/test_hard_cases.py`).
 * **Hard cases**: every item in the brief except the CSV one has a test; see `evidence/hard_cases.md`.
 * **Integration Standard**: compose stack (Postgres, Redis, RQ worker, SeaweedFS S3, mocks, Ghost, Lemmy) starts with one command and the batch runner passes 12/12 against it (`evidence/batch_run_docker/`); `openapi.yaml` is generated and a test fails if it is stale; 202 + job polling + HMAC callbacks; `Idempotency-Key` on POSTs; JSON error envelope; env-only config; upload + download links; JSON logs with correlation id and job id, secret redaction; `/health`, `/ready`; output manifest on every result; batch runner CLI.
-* **Tests**: 162 tests, all offline (`docker compose --profile test run --rm tests` or `pytest -q`), 162 passed. They include a 50-case callback-URL SSRF matrix, a DNS-rebinding test, a real-TLS test (connection pinned to the validated IP, certificate checked against the host name) and the queue-down 503.
+* **Tests**: 403 tests, all offline (`docker compose --profile test run --rm tests` or `pytest -q`), 403 passed. They include a 50-case callback-URL SSRF matrix, a DNS-rebinding test, a real-TLS test (connection pinned to the validated IP, certificate checked against the host name) and the queue-down 503.
 
 ## 3. What does not work / is missing (honest list)
+* **Live-mode platform addresses are not SSRF-guarded**: a destination's registered `base_url` (and `connection.base_url` on the contract route) is called as given when `SIMULATION_MODE=false`, because real self-hosted platforms use private addresses. Authenticated operators only; live mode is refused by the public demo. An operator allow-list is the planned hardening.
+* **Licensing questions for the owner** are listed in `SOURCES.md` section 5 (Redis licence, AGPL test containers, LGPL/MPL libraries).
 * **Advanced and Outstanding levels are not built**: CSV catalogue import, AI rules capture, relevance scoring, tailoring, three extra connectors, recommender, recertification scheduler, 150-destination research. `fetch_metrics` exists on Discourse, Lemmy and Dev.to against mocks only, which is not enough to claim the Outstanding item. Those levels are marked "No".
 * **Discourse, Dev.to and the webhook connector are certified against mock servers only**, not real instances (no free local Discourse/Dev.to instance was set up). Dev.to has no delete endpoint, so `delete` unpublishes; this is a limit of the platform.
 * **Exactly-once after a real timeout** depends on the platform honouring the idempotency header. Real Discourse/Lemmy/Dev.to/Ghost do not, so against them a timed-out publish stays in state `unknown` and needs human reconciliation. The mocks do honour it, which is how the tests pass.
@@ -27,6 +29,20 @@
 * Frequency-cap time zones: all windows are computed in UTC; per-destination time zones are not modelled.
 * **Current state (local only):** the repository has **13 local commits** on `main`, **not pushed**: no remote is configured and nothing has been published to GitHub. Certification screenshots are present (4 images of the real local Ghost and Lemmy test posts, live and after deletion, in `evidence/certification/`). Render demo evidence is present (`evidence/render-demo/`: 49/49 checks, run **locally in Docker**). **The Render demo has not been deployed:** it was built and tested only on this machine, so there is no live demo URL, no measured Render cold start and no evidence from a real Render host.
 * **Still not done (needs the submitter):** deploying the live demo (must-have #9 cannot be claimed until then), recording the demo video, adding the reviewer to the private repository, and finishing the Submission Form (personal details, links, declaration). Docker verification ran on this one machine, including an isolated fresh-volume `inn-clean` project, but not on a separate clean machine. Passing the mock certifications of Discourse, Dev.to and the webhook is not live-platform verification: only Ghost and Lemmy were certified against real (local) software.
+
+## 3a. Integration Standard: status after the audit (verified by tests, see `tests/`)
+| Point | Status | What was done / what remains |
+|---|---|---|
+| 1 One-command start and test | Yes | `.env.example` now lists every setting the code reads; `tests/test_env_example.py` fails if one is missing |
+| 2 OpenAPI 3.1 | Yes | generated from the app; a test fails if `openapi.yaml` is stale |
+| 3 Background jobs | Yes | 202 + job id, status/progress/result links, HMAC-signed callbacks with SSRF protection |
+| 4 Idempotency-Key on every POST | Yes | all 12 POST routes REQUIRE the header (`400 IDEMPOTENCY_KEY_REQUIRED`); the contract route, including `publish`, requires the HTTP header too (a body field is not a substitute). A repeat replays the first answer; concurrent duplicates are serialised by a unique constraint. Not a guarantee of exactly-once delivery to an external platform |
+| 5 Error envelope | Yes | wrong method, unknown route and every other framework error now use the envelope (`tests/test_error_envelope.py`) |
+| 6 Configuration | Yes | all settings from environment variables, including upload limit, job timeout and idempotency timings; `tests/test_env_example.py` checks coverage. Small internal constants remain in code (chunk size, S3 client timeouts, token cache lifetimes) |
+| 7 Files in and out | Yes, with limits | upload and URL input (`POST /files/from-url`, SSRF-hardened, 183 tests); a media URL inside a publish rendition is still only a reference |
+| 8 Logs and health | Yes | JSON logs with correlation id and job id; URL query strings are redacted |
+| 9 Output manifest | Yes | one builder for every result type; failed jobs carry an error instead of a result |
+| 10 Batch runner | Yes | 12/12 |
 
 ## 3b. Free single-container demo (prepared, NOT deployed)
 A separate image (`deploy/render/`, see `docs/RENDER_DEPLOY.md`) runs API + RQ worker + Redis + SQLite under supervisord for a free
