@@ -45,7 +45,7 @@ only counts as certified after a real test post was published, confirmed live, r
 
 ```bash
 cp .env.example .env                       # 1. settings (no real keys needed)
-docker compose up --build -d               # 2. api, worker, postgres, redis, s3, mocks, ghost, lemmy
+docker compose up --build -d               # 2. api, worker, postgres, valkey (Redis protocol), s3, mocks, ghost, lemmy
 curl localhost:8000/ready                  # 3. {"status":"ready",...}
 docker compose --profile test run --rm tests        # 4. all tests, no API keys
 python -m cli.batch_runner samples --out results    # 5. batch runner (needs: pip install httpx)

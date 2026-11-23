@@ -201,8 +201,8 @@ def main() -> int:
 
     dexec(*SUP, "stop", "worker")
     ids = [pub(c, "demo-ghost", f"redis-b-{stamp}-{i}", f"Queue wiped before processing {i}").json()["job_id"] for i in range(5)]
-    dexec("redis-cli", "flushall")
-    left = dexec("redis-cli", "llen", "rq:queue:incubrix")
+    dexec("valkey-cli", "flushall")
+    left = dexec("valkey-cli", "llen", "rq:queue:incubrix")
     dexec(*SUP, "start", "worker")
     st = [job_done(c, i, 60)["status"] for i in ids]
     check("Redis data LOST (flushall): worker start re-enqueues orphaned jobs, all 5 completed", st == ["succeeded"] * 5 and left.strip() == "0", f"queue length after flush={left}, states={st}")

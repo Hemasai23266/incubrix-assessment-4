@@ -5,7 +5,7 @@
 FROM python:3.11-slim
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/srv
 RUN apt-get update \
- && apt-get install -y --no-install-recommends redis-server supervisor \
+ && apt-get install -y --no-install-recommends valkey-server valkey-tools supervisor \
  && rm -rf /var/lib/apt/lists/* \
  && useradd --create-home --uid 10001 app
 WORKDIR /srv

@@ -12,7 +12,7 @@ real-platform credentials and cannot publish to any real community.
 |---|---|---|
 | Containers | 10 (api, worker, Postgres, Redis, S3, mocks, Ghost, Lemmy, pict-rs, lemmy-db) | **1**, processes managed by supervisord |
 | Database | PostgreSQL 16 (named volume) | **SQLite file** in `/tmp` (WAL, busy timeout, `BEGIN IMMEDIATE`) |
-| Queue | Redis container + RQ `Worker` (forks per job) | Redis **inside** the container (AOF persistence) + RQ **`SimpleWorker`** (one long-lived process) |
+| Queue | Valkey (Redis-compatible) container + RQ `Worker` (forks per job) | Valkey (Redis-compatible) **inside** the container (AOF persistence) + RQ **`SimpleWorker`** (one long-lived process) |
 | File storage | S3-compatible (SeaweedFS) | **Local disk** (`/tmp/incubrix/store`), same download links |
 | Real Ghost / Lemmy instances | yes (real-mode override) | **no**, mock platforms only |
 | Data persistence | Docker volumes survive restarts | **Ephemeral**: lost whenever the host recreates the container |
