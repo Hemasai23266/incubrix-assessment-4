@@ -81,6 +81,21 @@ class IdempotencyRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class IdempotentResponse(Base):
+    """Stored response of a non-job POST (enable/disable/revoke/check/faults/connector contract) so a repeated request with the same
+    Idempotency-Key and the same request replays the original answer instead of doing the work again. A NEW table: existing databases
+    get it automatically and no existing table is altered."""
+    __tablename__ = "idempotent_responses"
+    __table_args__ = (UniqueConstraint("scope", "key", name="uq_idem_resp_scope_key"),)
+    id: Mapped[str] = mapped_column(String(64), primary_key=True, default=new_id)  # generated in Python: no database round-trip
+    scope: Mapped[str] = mapped_column(String(150))
+    key: Mapped[str] = mapped_column(String(200))
+    request_hash: Mapped[str] = mapped_column(String(64))
+    state: Mapped[str] = mapped_column(String(20), default="in_progress")  # in_progress | done
+    response: Mapped[Any] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 class Post(Base):
     """One publish attempt, unique per idempotency key => never a second post."""
     __tablename__ = "posts"

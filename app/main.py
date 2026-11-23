@@ -3,13 +3,16 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import functools
 import json
 import logging
+import re
 import time
 import uuid
+from http import HTTPStatus
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, Callable
 
 from fastapi import Depends, FastAPI, File, Header, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
@@ -18,11 +21,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from starlette.concurrency import run_in_threadpool
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app import jobs, netguard, rules, runtime, storage
+from app import fetcher, jobs, netguard, rules, runtime, storage
 from app.config import get_settings
 from app.connectors.registry import get_connector, get_registry
-from app.db import ConnectorState, Destination, IdempotencyRecord, Job, get_session, init_db, new_id, session_scope, utcnow
+from app.db import ConnectorState, Destination, IdempotencyRecord, IdempotentResponse, Job, get_session, init_db, new_id, session_scope, utcnow
 from app.errors import ERROR_CODES, AppError
 from app.logging_setup import correlation_id_var, log, setup_logging
 
@@ -86,10 +91,24 @@ async def unhandled(request: Request, exc: Exception):
     return JSONResponse(AppError("INTERNAL_ERROR", "unexpected server error", {}, 500).to_dict(), status_code=500)
 
 
-@app.exception_handler(404)
-async def not_found(request: Request, exc):
-    return JSONResponse(AppError("NOT_FOUND", "route or resource not found", {"path": request.url.path}, 404).to_dict(),
-                        status_code=404)
+_HTTP_CODES = {400: "VALIDATION_ERROR", 401: "UNAUTHORIZED", 404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED", 429: "RATE_LIMITED"}
+_HTTP_MESSAGES = {404: "route or resource not found", 405: "method not allowed for this route"}
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Framework-generated errors (wrong method, unknown route, bad request line, ...) use the same envelope as application errors.
+    Messages come from a fixed table / the HTTP status phrase, never from exception internals."""
+    status = exc.status_code
+    phrase = HTTPStatus(status).phrase.lower() if status in HTTPStatus._value2member_map_ else "http error"
+    details: dict = {"path": request.url.path}
+    headers: dict = {}
+    allow = (exc.headers or {}).get("Allow") or (exc.headers or {}).get("allow")
+    if status == 405 and allow:
+        details["allowed_methods"] = [m.strip() for m in allow.split(",")]
+        headers["Allow"] = allow
+    err = AppError(_HTTP_CODES.get(status, "HTTP_ERROR"), _HTTP_MESSAGES.get(status, phrase), details, status, retryable=status >= 500)
+    return JSONResponse(err.to_dict(), status_code=status, headers=headers)
 
 
 def require_auth(authorization: str | None = Header(None)) -> None:
@@ -99,10 +118,23 @@ def require_auth(authorization: str | None = Header(None)) -> None:
         raise AppError("UNAUTHORIZED", "missing or invalid bearer token", {}, 401)
 
 
+_KEY_RE = re.compile(r"^[\x21-\x7e]{1,200}$")  # printable ASCII, no spaces, 1-200 characters
+
+
+def _validated_key(raw: str | None, required: bool) -> str | None:
+    if raw is None or raw == "":
+        if required:
+            raise AppError("IDEMPOTENCY_KEY_REQUIRED", "send an Idempotency-Key header (1-200 printable characters) on this POST", {}, 400)
+        return None
+    if not _KEY_RE.match(raw):
+        raise AppError("IDEMPOTENCY_KEY_INVALID", "Idempotency-Key must be 1-200 printable ASCII characters without spaces", {}, 400)
+    return raw
+
+
 def require_idem(idempotency_key: str | None = Header(None, alias="Idempotency-Key")) -> str:
-    if not idempotency_key or len(idempotency_key) > 200:
-        raise AppError("IDEMPOTENCY_KEY_REQUIRED", "send an Idempotency-Key header (max 200 chars) on this POST", {}, 400)
-    return idempotency_key
+    """EVERY POST route requires the header (Integration Standard point 4). A repeat with the same key replays the first answer."""
+    return _validated_key(idempotency_key, True)  # type: ignore[return-value]
+
 
 
 # ------------------------------------------------------------------ schemas
@@ -161,6 +193,12 @@ class CertifyIn(BaseModel):
     callback_url: str | None = None
 
 
+class FetchIn(BaseModel):
+    url: str
+    filename: str | None = Field(None, max_length=120)
+    callback_url: str | None = None
+
+
 class FaultIn(BaseModel):
     auth_expired: bool | None = None
     rename: bool | None = None
@@ -200,6 +238,72 @@ def create_idempotent_job(db: Session, kind: str, scope: str, key: str, payload:
         db.commit()
         return job, True
     return job, False
+
+
+
+
+def _aware(d):
+    from datetime import timezone
+    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+
+
+def run_idempotent(scope: str, key: str | None, payload: Any, fn: Callable[[], Any]) -> tuple[Any, bool]:
+    """Run fn() at most once per (scope, key). Returns (response, replayed).
+    Same key + same request  -> the stored response of the first call (fn is NOT run again).
+    Same key + other request -> 422 IDEMPOTENCY_KEY_REUSED.
+    Concurrent duplicates    -> the database unique constraint picks one owner; the others wait (up to 5 s) and replay its response.
+    If fn() fails the claim is released, so a retry with the same key runs it again."""
+    if key is None:
+        return fn(), False
+    h = _hash(payload)
+    db = session_scope()
+    try:
+        deadline = time.time() + get_settings().idempotency_wait_seconds
+        while True:
+            rec = IdempotentResponse(scope=scope, key=key, request_hash=h, state="in_progress")
+            db.add(rec)
+            try:
+                db.commit()
+            except IntegrityError:
+                db.rollback()
+                db.expire_all()
+                other = db.scalars(select(IdempotentResponse).where(IdempotentResponse.scope == scope, IdempotentResponse.key == key)).first()
+                snap = None if other is None else (other.request_hash, other.state, other.response, other.created_at)
+                db.rollback()  # end the read transaction NOW: on SQLite it would hold the write lock the owner needs to finish
+                if snap is None:  # the owner failed and released the key a moment ago: try to claim it ourselves
+                    continue
+                other_hash, other_state, other_response, other_created = snap
+                if other_hash != h:
+                    raise AppError("IDEMPOTENCY_KEY_REUSED", "this Idempotency-Key was already used with a different request", {"key": key}, 422)
+                if other_state == "done":
+                    return other_response, True
+                if (utcnow() - _aware(other_created)).total_seconds() > get_settings().idempotency_claim_ttl_seconds:  # owner died: release the stale claim
+                    stale = db.scalars(select(IdempotentResponse).where(IdempotentResponse.scope == scope, IdempotentResponse.key == key,
+                                                                        IdempotentResponse.state == "in_progress")).first()
+                    if stale is not None:
+                        db.delete(stale)
+                    db.commit()
+                    continue
+                if time.time() > deadline:
+                    raise AppError("IDEMPOTENCY_IN_PROGRESS", "a request with this Idempotency-Key is still running; retry shortly",
+                                   {"retry_after_seconds": 2}, 409)
+                time.sleep(0.05)
+                continue
+            try:
+                result = fn()
+            except BaseException:
+                db.delete(rec)
+                db.commit()
+                raise
+            rec.state, rec.response = "done", result
+            db.commit()
+            return result, False
+    finally:
+        db.close()
+
+
+def reply(result: Any, replayed: bool):
+    return JSONResponse(result, headers={"Idempotent-Replay": "true"}) if replayed else result
 
 
 def accepted(job: Job, created: bool) -> JSONResponse:
@@ -281,20 +385,24 @@ def list_connectors(db: Session = Depends(get_session)):
 
 
 @app.post("/api/v1/connectors/{key}/disable", dependencies=[Depends(require_auth)], tags=["connectors"])
-def disable_connector(key: str, db: Session = Depends(get_session)):
-    get_connector(key)
-    runtime._state(db, key).disabled = True
-    db.commit()
-    return {"key": key, "disabled": True}
+def disable_connector(key: str, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
+    def work():
+        get_connector(key)
+        runtime._state(db, key).disabled = True
+        db.commit()
+        return {"key": key, "disabled": True}
+    return reply(*run_idempotent(f"disable:{key}", idem, {"key": key}, work))
 
 
 @app.post("/api/v1/connectors/{key}/enable", dependencies=[Depends(require_auth)], tags=["connectors"])
-def enable_connector(key: str, db: Session = Depends(get_session)):
-    get_connector(key)
-    st = runtime._state(db, key)
-    st.disabled, st.consecutive_failures = False, 0
-    db.commit()
-    return {"key": key, "disabled": False}
+def enable_connector(key: str, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
+    def work():
+        get_connector(key)
+        st = runtime._state(db, key)
+        st.disabled, st.consecutive_failures = False, 0
+        db.commit()
+        return {"key": key, "disabled": False}
+    return reply(*run_idempotent(f"enable:{key}", idem, {"key": key}, work))
 
 
 @app.post("/api/v1/destinations", status_code=201, dependencies=[Depends(require_auth)], tags=["destinations"])
@@ -335,22 +443,26 @@ def get_destination(dest_id: str, db: Session = Depends(get_session)):
 
 
 @app.post("/api/v1/destinations/{dest_id}/revoke", dependencies=[Depends(require_auth)], tags=["destinations"])
-def revoke_destination(dest_id: str, db: Session = Depends(get_session)):
+def revoke_destination(dest_id: str, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
     """A partner revoked permission: block all further posting to it."""
-    d = _get_dest(db, dest_id)
-    d.status, d.certified, d.level = "revoked", False, "L0"
-    db.commit()
-    return runtime.dest_to_dict(d)
+    def work():
+        d = _get_dest(db, dest_id)
+        d.status, d.certified, d.level = "revoked", False, "L0"
+        db.commit()
+        return runtime.dest_to_dict(d)
+    return reply(*run_idempotent(f"revoke:{dest_id}", idem, {"dest_id": dest_id}, work))
 
 
 @app.post("/api/v1/destinations/{dest_id}/check", dependencies=[Depends(require_auth)], tags=["rules"])
-def check_rules(dest_id: str, rendition: Rendition, db: Session = Depends(get_session)):
+def check_rules(dest_id: str, rendition: Rendition, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
     """Dry run: which rules would fire for this content? Nothing is posted or recorded."""
-    d = _get_dest(db, dest_id)
-    r = rendition.model_dump()
-    v = rules.evaluate(db, d, r, record=False)
-    spec = get_connector(d.connector_key).validate(r, runtime.dest_to_dict(d), None)
-    return {"rules": v.as_dict(), "spec": spec}
+    def work():
+        d = _get_dest(db, dest_id)
+        r = rendition.model_dump()
+        v = rules.evaluate(db, d, r, record=False)
+        spec = get_connector(d.connector_key).validate(r, runtime.dest_to_dict(d), None)
+        return {"rules": v.as_dict(), "spec": spec}
+    return reply(*run_idempotent(f"check:{dest_id}", idem, {"dest_id": dest_id, "rendition": rendition.model_dump()}, work))
 
 
 @app.post("/api/v1/destinations/{dest_id}/certify", status_code=202, dependencies=[Depends(require_auth)], tags=["certification"])
@@ -406,12 +518,25 @@ def cleanup(request: Request, idem: str = Depends(require_idem), db: Session = D
 async def upload_file(file: UploadFile = File(...), idem: str = Depends(require_idem)):
     """Files in: upload; the stored copy gets a download link (S3-compatible storage)."""
     data = await file.read()
-    if len(data) > 25 * 1024 * 1024:
-        raise AppError("VALIDATION_ERROR", "file larger than 25 MB", {"size": len(data)}, 413)
+    limit = get_settings().upload_max_bytes
+    if len(data) > limit:
+        raise AppError("VALIDATION_ERROR", f"file larger than {limit} bytes", {"size": len(data), "limit": limit}, 413)
     safe = "".join(c for c in (file.filename or "upload") if c.isalnum() or c in "._-") or "upload"
     key = f"uploads/{hashlib.sha256(idem.encode()).hexdigest()[:16]}/{safe}"
     url = storage.put_bytes(key, data, file.content_type or "application/octet-stream")
     return {"key": key, "download_url": url, "size": len(data), "content_type": file.content_type}
+
+
+@app.post("/api/v1/files/from-url", status_code=202, dependencies=[Depends(require_auth)], tags=["files"])
+def fetch_file_from_url(body: FetchIn, request: Request, idem: str = Depends(require_idem), db: Session = Depends(get_session)):
+    """Files in, by URL: a background job downloads the file SAFELY (public addresses only, DNS pinned, redirects re-validated, size and
+    type limits) and stores it; the job result carries the download link and the standard manifest."""
+    fetcher.check_url(body.url)  # 422 MEDIA_URL_REJECTED for anything unsafe; the worker re-validates every hop
+    check_callback_url(body.callback_url)
+    job, created = create_idempotent_job(db, "fetch", "fetch", idem, {"url": body.url, "filename": body.filename}, body.callback_url, request)
+    if created:
+        dispatch(db, job)
+    return accepted(job, created)
 
 
 @app.get("/api/v1/files/{key:path}", dependencies=[Depends(require_auth)], tags=["files"])
@@ -424,26 +549,24 @@ def download_file(key: str):
 
 
 @app.post("/api/v1/simulation/faults/{instance}", dependencies=[Depends(require_auth)], tags=["simulation"])
-def set_fault(instance: str, body: FaultIn):
+def set_fault(instance: str, body: FaultIn, idem: str = Depends(require_idem)):
     """Flip a failure switch on a mock platform (simulation mode only)."""
-    if not get_settings().simulation_mode:
-        raise AppError("VALIDATION_ERROR", "fault injection is only available in simulation mode", {}, 403)
-    from app.mocks.platforms import FAULTS
-    if instance not in FAULTS:
-        raise AppError("NOT_FOUND", f"unknown mock instance '{instance}'", {"known": sorted(FAULTS)}, 404)
-    FAULTS[instance].update({k: v for k, v in body.model_dump().items() if v is not None})
-    return {"instance": instance, "faults": dict(FAULTS[instance])}
+    def work():
+        if not get_settings().simulation_mode:
+            raise AppError("VALIDATION_ERROR", "fault injection is only available in simulation mode", {}, 403)
+        from app.mocks.platforms import FAULTS
+        if instance not in FAULTS:
+            raise AppError("NOT_FOUND", f"unknown mock instance '{instance}'", {"known": sorted(FAULTS)}, 404)
+        FAULTS[instance].update({k: v for k, v in body.model_dump().items() if v is not None})
+        return {"instance": instance, "faults": dict(FAULTS[instance])}
+    return reply(*run_idempotent(f"faults:{instance}", idem, {"instance": instance, "body": body.model_dump()}, work))
 
 
 # ------------------------------------------------------------------ connector contract (Appendix A)
 CONTRACT_METHODS = {"validate", "publish", "get_status", "delete", "fetch_metrics", "refresh_auth", "build_assist_pack"}
 
 
-@app.post("/connector/v1/{connector_key}/{method}", dependencies=[Depends(require_auth)], tags=["connector-contract"])
-async def connector_call(connector_key: str, method: str, request: Request):
-    """Exact Appendix A contract. Methods return results only and never write to the database."""
-    if method not in CONTRACT_METHODS:
-        raise AppError("NOT_FOUND", f"unknown method '{method}'", {"methods": sorted(CONTRACT_METHODS)}, 404)
+def _contract_execute(connector_key: str, method: str, b: dict, key: str | None):
     c = get_connector(connector_key)
     st = session_scope()
     try:
@@ -451,10 +574,6 @@ async def connector_call(connector_key: str, method: str, request: Request):
             raise AppError("CONNECTOR_DISABLED", f"connector '{connector_key}' is disabled", {}, 503)
     finally:
         st.close()
-    try:
-        b = await request.json()
-    except Exception:
-        raise AppError("VALIDATION_ERROR", "body must be JSON", {}, 422)
     conn = b.get("connection") or {}
     if get_settings().simulation_mode:  # no real accounts needed: fill in simulation credentials
         conn = {**runtime.SIM_CREDENTIALS.get(connector_key, {}), **conn}
@@ -465,7 +584,6 @@ async def connector_call(connector_key: str, method: str, request: Request):
         if method == "validate":
             return c.validate(b.get("rendition") or {}, dest, conn)
         if method == "publish":
-            key = b.get("idempotency_key")
             if not key:
                 raise AppError("VALIDATION_ERROR", "idempotency_key is required", {"field": "idempotency_key"}, 422)
             res = c.validate(b.get("rendition") or {}, dest, conn)
@@ -483,3 +601,40 @@ async def connector_call(connector_key: str, method: str, request: Request):
         return c.build_assist_pack(b.get("rendition") or {}, dest)
     except KeyError as e:
         raise AppError("VALIDATION_ERROR", f"missing field {e}", {"field": str(e).strip("'")}, 422)
+
+
+@app.post("/connector/v1/{connector_key}/{method}", dependencies=[Depends(require_auth)], tags=["connector-contract"])
+async def connector_call(connector_key: str, method: str, request: Request, key: str = Depends(require_idem)):
+    """Exact Appendix A contract. Methods return results only and never write to the database.
+    The Idempotency-Key HEADER is required for every method including publish; a body field `idempotency_key` is NOT accepted in its place
+    (the header value is the key that is sent on to the platform). A repeated identical request replays the first answer."""
+    if method not in CONTRACT_METHODS:
+        raise AppError("NOT_FOUND", f"unknown method '{method}'", {"methods": sorted(CONTRACT_METHODS)}, 404)
+    try:
+        b = await request.json()
+    except Exception:
+        raise AppError("VALIDATION_ERROR", "body must be JSON", {}, 422)
+    if not isinstance(b, dict):
+        raise AppError("VALIDATION_ERROR", "body must be a JSON object", {}, 422)
+    work = functools.partial(_contract_execute, connector_key, method, b, key)
+    result, replayed = await run_in_threadpool(run_idempotent, f"contract:{connector_key}:{method}", key,
+                                               {"connector": connector_key, "method": method, "body": b}, work)
+    return reply(result, replayed)
+
+
+def _openapi_with_required_idempotency_key():
+    """The header is enforced by `require_idem` (answers 400 IDEMPOTENCY_KEY_REQUIRED in the standard envelope), not by FastAPI's own validation,
+    so FastAPI documents it as optional. The published spec must match the running service: mark it required on every POST operation."""
+    if app.openapi_schema:
+        return app.openapi_schema
+    schema = _original_openapi()
+    for ops in schema["paths"].values():
+        for param in (ops.get("post") or {}).get("parameters", []):
+            if param.get("name", "").lower() == "idempotency-key":
+                param["required"] = True
+                param.setdefault("description", "Required. 1-200 printable ASCII characters, no spaces. A repeat with the same key replays the first answer.")
+    return schema
+
+
+_original_openapi = app.openapi
+app.openapi = _openapi_with_required_idempotency_key  # type: ignore[method-assign]

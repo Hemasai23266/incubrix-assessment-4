@@ -9,5 +9,7 @@ COPY scripts ./scripts
 COPY tests ./tests
 COPY openapi.yaml ./openapi.yaml
 COPY samples ./samples
+COPY deploy ./deploy
+COPY .env.example ./.env.example
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

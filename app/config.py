@@ -29,6 +29,19 @@ class Settings(BaseSettings):
     callback_allow_http: bool = False
     callback_allowed_ports: str = "443,8443"
     callback_dns_timeout: float = 3.0
+    media_fetch_allow_private: bool = False  # DEV ONLY: disables the address checks for URL fetching (the demo image refuses it)
+    media_fetch_allow_http: bool = True
+    media_fetch_allowed_ports: str = "80,443,8080,8443"
+    media_fetch_max_bytes: int = 10 * 1024 * 1024
+    media_fetch_allowed_types: str = "image/png,image/jpeg,image/gif,image/webp,video/mp4,text/plain"
+    upload_max_bytes: int = 25 * 1024 * 1024  # POST /files size limit
+    job_timeout_seconds: int = 600  # RQ job timeout
+    idempotency_claim_ttl_seconds: float = 60.0  # a claim older than this belongs to a dead request
+    idempotency_wait_seconds: float = 5.0  # how long a concurrent duplicate waits for the owner before answering 409
+    media_fetch_connect_timeout: float = 5.0
+    media_fetch_read_timeout: float = 10.0
+    media_fetch_total_timeout: float = 20.0
+    media_fetch_max_redirects: int = 3
     credentials_dir: str = ""  # optional folder of secret files (one file per credentials_ref), e.g. a Docker volume
     max_inline_backoff_seconds: float = 3.0  # sleep and retry a 429 only when the reset is this short
 

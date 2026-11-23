@@ -235,17 +235,17 @@ def main() -> int:
     check("certification evidence file is downloadable from local storage", c.get(ev.replace(BASE, "")).status_code == 200)
 
     # ---------------------------------------------------------------- 10 fault switches (shared between API and worker via Redis)
-    fr = c.post("/api/v1/simulation/faults/discourse", json={"rename": True})
+    fr = c.post("/api/v1/simulation/faults/discourse", json={"rename": True}, headers={"Idempotency-Key": f"flt1-{stamp}"})
     jc = job_done(c, c.post("/api/v1/destinations/demo-discourse/certify", headers={"Idempotency-Key": f"rn-{stamp}"}).json()["job_id"])
     dnow = c.get("/api/v1/destinations/demo-discourse").json()
     check("renamed-field switch reaches the WORKER: certification fails CONTRACT_VIOLATION and destination is demoted",
           jc["status"] == "failed" and jc["error"]["code"] == "CONTRACT_VIOLATION" and dnow["status"] == "demoted", f"{jc['status']} {jc['error']['code'] if jc['error'] else ''} {dnow['status']}")
-    c.post("/api/v1/simulation/faults/discourse", json={"rename": False})
+    c.post("/api/v1/simulation/faults/discourse", json={"rename": False}, headers={"Idempotency-Key": f"flt2-{stamp}"})
     jr = job_done(c, c.post("/api/v1/destinations/demo-discourse/certify", headers={"Idempotency-Key": f"rn2-{stamp}"}).json()["job_id"])
     check("switch off + re-certify: destination recovers", jr["status"] == "succeeded" and c.get("/api/v1/destinations/demo-discourse").json()["status"] == "active")
-    c.post("/api/v1/simulation/faults/lemmy", json={"auth_expired": True})
+    c.post("/api/v1/simulation/faults/lemmy", json={"auth_expired": True}, headers={"Idempotency-Key": f"flt3-{stamp}"})
     je = job_done(c, pub(c, "demo-lemmy", f"ae-{stamp}").json()["job_id"])
-    c.post("/api/v1/simulation/faults/lemmy", json={"auth_expired": False})
+    c.post("/api/v1/simulation/faults/lemmy", json={"auth_expired": False}, headers={"Idempotency-Key": f"flt4-{stamp}"})
     check("expired-token switch: CONNECTION_AUTH_EXPIRED", je["status"] == "failed" and je["error"]["code"] == "CONNECTION_AUTH_EXPIRED")
 
     # ---------------------------------------------------------------- 11 rules + rate limit

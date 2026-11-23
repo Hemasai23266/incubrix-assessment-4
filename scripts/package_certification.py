@@ -176,7 +176,7 @@ def main_run(mode: str, only: str = "") -> None:
                     "link": "https://incubrix.example/launch", "ai_generated": True, "disclosure": "Drafted with AI assistance, reviewed by a human.",
                     "media": [{"url": "https://incubrix.example/media/demo.png", "content_type": "image/png", "filename": "demo.png"},
                               {"url": "https://incubrix.example/media/demo.mp4", "content_type": "video/mp4", "filename": "demo.mp4"}]}
-            pack = c.post("/connector/v1/assisted/build_assist_pack", json={"rendition": rend, "destination": a}, headers=H).json()
+            pack = c.post("/connector/v1/assisted/build_assist_pack", json={"rendition": rend, "destination": a}, headers={**H, "Idempotency-Key": "pkg-assist-pack"}).json()
             checks = [
                 ("files[] present and includes the post text file", bool(pack.get("files")) and any(f["name"] == "post.txt" and f.get("content") for f in pack["files"])),
                 ("one file entry per media item (2 media -> 3 files total)", len(pack.get("files", [])) == 3),
@@ -188,7 +188,7 @@ def main_run(mode: str, only: str = "") -> None:
                 ("AI disclosure is flagged as REQUIRED in the checklist for this destination", any("YES" in x and "disclosure" in x.lower() for x in pack.get("checklist", []))),
                 ("manual posting instructions present", bool(pack.get("instructions"))),
             ]
-            refusal = c.post("/connector/v1/assisted/publish", json={"rendition": rend, "destination": a, "idempotency_key": "x"}, headers=H)
+            refusal = c.post("/connector/v1/assisted/publish", json={"rendition": rend, "destination": a}, headers={**H, "Idempotency-Key": "pkg-assisted-publish"})
             checks.append(("automated publish() is refused (assisted is not an automated connector)", refusal.status_code == 422 and refusal.json()["error"]["code"] == "DEST_RULE_VIOLATION"))
             d = OUT / "assisted" / "assisted-flow"
             write_json(d / "assist_pack.json", pack)

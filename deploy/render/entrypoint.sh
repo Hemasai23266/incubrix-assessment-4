@@ -14,11 +14,11 @@ case "${SIMULATION_MODE:-true}" in
   *) fatal "this image only runs in SIMULATION_MODE=true (no real publishing)";;
 esac
 
-for v in CALLBACK_ALLOW_PRIVATE CALLBACK_ALLOW_HTTP; do
+for v in CALLBACK_ALLOW_PRIVATE CALLBACK_ALLOW_HTTP MEDIA_FETCH_ALLOW_PRIVATE; do
   eval "val=\${$v:-false}"
   case "$val" in false|FALSE|False|0|"") ;; *) fatal "$v must not be enabled in this image (callback SSRF protection)";; esac
 done
-export CALLBACK_ALLOW_PRIVATE=false CALLBACK_ALLOW_HTTP=false
+export CALLBACK_ALLOW_PRIVATE=false CALLBACK_ALLOW_HTTP=false MEDIA_FETCH_ALLOW_PRIVATE=false
 
 export PORT="${PORT:-10000}"
 export SIMULATION_MODE=true

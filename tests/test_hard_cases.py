@@ -50,7 +50,7 @@ def test_same_key_different_request_rejected(client):
     assert r.status_code == 422 and r.json()["error"]["code"] == "IDEMPOTENCY_KEY_REUSED"
 
 
-def test_concurrent_requests_same_key_one_post(client):
+def test_concurrent_requests_same_key_one_post(client, file_db):  # file-backed SQLite: threads need separate connections
     d = make_dest(client, "discourse")
     key = uid("conc")
     results = []
@@ -68,7 +68,7 @@ def test_concurrent_requests_same_key_one_post(client):
 
 def test_missing_idempotency_key_rejected(client):
     d = make_dest(client, "discourse")
-    r = client.post("/api/v1/publish", json={"destination_id": d["id"], "rendition": {"title": LONG_TITLE}}, headers=H)
+    r = client.post("/api/v1/publish", json={"destination_id": d["id"], "rendition": {"title": LONG_TITLE}}, headers={**H, "X-No-Auto-Key": "1"})
     assert r.status_code == 400 and r.json()["error"]["code"] == "IDEMPOTENCY_KEY_REQUIRED"
 
 

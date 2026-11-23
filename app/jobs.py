@@ -5,13 +5,14 @@ import hashlib
 import hmac
 import json
 import logging
+import time
 from typing import Any
 
 from urllib.parse import urlsplit
 
 from redis.exceptions import RedisError
 
-from app import netguard, runtime
+from app import fetcher, netguard, runtime
 from app.config import get_settings
 from app.db import Job, session_scope, utcnow
 from app.errors import AppError
@@ -42,6 +43,15 @@ class QueueUnavailable(Exception):
     """The job queue (Redis) could not be reached when enqueueing."""
 
 
+def _outcome_manifest(db, job: Job, started: float, reason: str) -> dict:
+    """Manifest for a blocked/rescheduled publish (a result without a platform call)."""
+    from app.db import Destination
+    dest = db.get((Destination), (job.payload or {}).get("destination_id"))
+    r = (job.payload or {}).get("rendition") or {}
+    return runtime.make_manifest("publish", started, [reason], connector_key=dest.connector_key if dest else None, rendition=r,
+                                 extra={"outcome": "not sent to the platform"})
+
+
 def job_view(j: Job) -> dict[str, Any]:
     links = {"self": f"/api/v1/jobs/{j.id}"}
     res = j.result or {}
@@ -64,6 +74,7 @@ def run_job(job_id: str) -> None:
         correlation_id_var.set(job.correlation_id)
         job.status, job.progress = "running", 10
         db.commit()
+        t0 = time.time()
         p = job.payload
         try:
             if job.kind == "publish":
@@ -71,7 +82,9 @@ def run_job(job_id: str) -> None:
             elif job.kind == "certify":
                 result = runtime.certify(db, p["destination_id"])
             elif job.kind == "cleanup":
-                result = {"deleted": runtime.cleanup_stale_test_posts(db)}
+                result = runtime.cleanup_result(db, t0)
+            elif job.kind == "fetch":
+                result = fetcher.run_fetch_job(p, t0)
             else:
                 raise AppError("INTERNAL_ERROR", f"unknown job kind {job.kind}", {}, 500)
             job.status, job.progress, job.result = "succeeded", 100, result
@@ -84,9 +97,10 @@ def run_job(job_id: str) -> None:
             job = db.get(Job, job_id)
             job.status, job.progress, job.error = "failed", 100, e.to_dict()["error"]
             if e.details.get("reschedule_at"):
-                job.result = {"status": "rescheduled", "reschedule_at": e.details["reschedule_at"], "reason": e.message}
+                job.result = {"status": "rescheduled", "reschedule_at": e.details["reschedule_at"], "reason": e.message,
+                              "manifest": _outcome_manifest(db, job, t0, e.message)}
             elif e.code in ("DEST_RULE_VIOLATION", "DEST_NOT_CERTIFIED", "DEST_PERMISSION_REVOKED"):
-                job.result = {"status": "blocked", "reason": e.message}
+                job.result = {"status": "blocked", "reason": e.message, "manifest": _outcome_manifest(db, job, t0, e.message)}
             log(logger, logging.WARNING, "job failed", code=e.code, detail=e.message)
         except Exception as e:  # never leave a job stuck in 'running'
             db.rollback()
@@ -109,7 +123,7 @@ def enqueue(job_id: str) -> None:
         from rq import Queue
         try:
             Queue("incubrix", connection=Redis.from_url(s.redis_url, socket_connect_timeout=2, socket_timeout=5)).enqueue(
-                "app.jobs.run_job", job_id, job_timeout=600)
+                "app.jobs.run_job", job_id, job_timeout=s.job_timeout_seconds)
         except (RedisError, OSError) as e:
             raise QueueUnavailable(type(e).__name__) from e
     else:

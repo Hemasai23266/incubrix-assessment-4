@@ -31,7 +31,7 @@ def recover_orphans() -> int:
     finally:
         db.close()
     for job_id in orphans:
-        queue.enqueue("app.jobs.run_job", job_id, job_timeout=600)
+        queue.enqueue("app.jobs.run_job", job_id, job_timeout=get_settings().job_timeout_seconds)
     if orphans:
         log(logger, logging.WARNING, "re-enqueued orphaned jobs", count=len(orphans))
     return len(orphans)

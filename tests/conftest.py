@@ -29,11 +29,38 @@ def clean_state(monkeypatch):
     yield
 
 
+class AutoKeyClient(TestClient):
+    """Every POST now REQUIRES an Idempotency-Key. Most tests are not about that, so this client adds a fresh key to a POST that has none.
+    A test that checks the missing-key behaviour sends the marker header X-No-Auto-Key (it is removed before the request is sent)."""
+
+    def request(self, method, url, **kw):  # type: ignore[override]
+        if method.upper() == "POST":
+            headers = dict(kw.get("headers") or {})
+            if headers.pop("X-No-Auto-Key", None) is None and "Idempotency-Key" not in headers:
+                headers["Idempotency-Key"] = uid("auto")
+            kw["headers"] = headers
+        return super().request(method, url, **kw)
+
+
 @pytest.fixture
 def client():
     from app.main import app
-    with TestClient(app) as c:
+    with AutoKeyClient(app) as c:
         yield c
+
+
+@pytest.fixture
+def file_db(monkeypatch, tmp_path):
+    """Concurrency needs real separate connections (as in production). The default in-memory test database shares ONE connection between
+    threads, which cannot isolate concurrent transactions, so these tests use a file-backed SQLite database like the demo image does."""
+    from app.config import reset_settings
+    from app.db import init_db, reset_db_engine
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'idem.db'}")
+    reset_settings()
+    reset_db_engine()
+    init_db()
+    yield
+    reset_db_engine()
 
 
 _n = {"i": 0}

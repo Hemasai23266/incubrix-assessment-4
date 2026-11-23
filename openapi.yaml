@@ -76,6 +76,16 @@ paths:
           - type: string
           - type: 'null'
           title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       responses:
         '200':
           description: Successful Response
@@ -109,6 +119,16 @@ paths:
           - type: string
           - type: 'null'
           title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       responses:
         '200':
           description: Successful Response
@@ -140,12 +160,14 @@ paths:
           title: Authorization
       - name: Idempotency-Key
         in: header
-        required: false
+        required: true
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       requestBody:
         required: true
         content:
@@ -261,6 +283,16 @@ paths:
           - type: string
           - type: 'null'
           title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       responses:
         '200':
           description: Successful Response
@@ -296,6 +328,16 @@ paths:
           - type: string
           - type: 'null'
           title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       requestBody:
         required: true
         content:
@@ -337,12 +379,14 @@ paths:
           title: Authorization
       - name: Idempotency-Key
         in: header
-        required: false
+        required: true
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       requestBody:
         content:
           application/json:
@@ -415,12 +459,14 @@ paths:
           title: Authorization
       - name: Idempotency-Key
         in: header
-        required: false
+        required: true
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       requestBody:
         required: true
         content:
@@ -489,12 +535,14 @@ paths:
           title: Authorization
       - name: Idempotency-Key
         in: header
-        required: false
+        required: true
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       responses:
         '202':
           description: Successful Response
@@ -526,12 +574,14 @@ paths:
           title: Authorization
       - name: Idempotency-Key
         in: header
-        required: false
+        required: true
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       requestBody:
         required: true
         content:
@@ -540,6 +590,54 @@ paths:
               $ref: '#/components/schemas/Body_upload_file_api_v1_files_post'
       responses:
         '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/files/from-url:
+    post:
+      tags:
+      - files
+      summary: Fetch File From Url
+      description: 'Files in, by URL: a background job downloads the file SAFELY (public
+        addresses only, DNS pinned, redirects re-validated, size and
+
+        type limits) and stores it; the job result carries the download link and the
+        standard manifest.'
+      operationId: fetch_file_from_url_api_v1_files_from_url_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchIn'
+      responses:
+        '202':
           description: Successful Response
           content:
             application/json:
@@ -605,6 +703,16 @@ paths:
           - type: string
           - type: 'null'
           title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       requestBody:
         required: true
         content:
@@ -628,8 +736,14 @@ paths:
       tags:
       - connector-contract
       summary: Connector Call
-      description: Exact Appendix A contract. Methods return results only and never
+      description: 'Exact Appendix A contract. Methods return results only and never
         write to the database.
+
+        The Idempotency-Key HEADER is required for every method including publish;
+        a body field `idempotency_key` is NOT accepted in its place
+
+        (the header value is the key that is sent on to the platform). A repeated
+        identical request replays the first answer.'
       operationId: connector_call_connector_v1__connector_key___method__post
       parameters:
       - name: connector_key
@@ -652,6 +766,16 @@ paths:
           - type: string
           - type: 'null'
           title: Authorization
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Idempotency-Key
+        description: Required. 1-200 printable ASCII characters, no spaces. A repeat
+          with the same key replays the first answer.
       responses:
         '200':
           description: Successful Response
@@ -810,6 +934,26 @@ components:
           title: Revoked
       type: object
       title: FaultIn
+    FetchIn:
+      properties:
+        url:
+          type: string
+          title: Url
+        filename:
+          anyOf:
+          - type: string
+            maxLength: 120
+          - type: 'null'
+          title: Filename
+        callback_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Callback Url
+      type: object
+      required:
+      - url
+      title: FetchIn
     HTTPValidationError:
       properties:
         detail:

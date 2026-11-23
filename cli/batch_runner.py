@@ -33,7 +33,8 @@ def run_case(cl: httpx.Client, case: dict, name: str, run_id: str) -> dict:
             return out
         dest_id = r.json()["id"]
     for sim in case.get("faults", []):  # optional: {"instance": "ghost", "rename": true}
-        cl.post(f"/api/v1/simulation/faults/{sim['instance']}", json={k: v for k, v in sim.items() if k != "instance"})
+        cl.post(f"/api/v1/simulation/faults/{sim['instance']}", json={k: v for k, v in sim.items() if k != "instance"},
+                headers={"Idempotency-Key": _key("fault-on", run_id, name + sim["instance"])})
     if case.get("action") == "certify":
         r = cl.post(f"/api/v1/destinations/{dest_id}/certify", headers={"Idempotency-Key": _key("cert", run_id, name)})
     else:
@@ -57,7 +58,8 @@ def run_case(cl: httpx.Client, case: dict, name: str, run_id: str) -> dict:
     out["expect"] = expect
     out["ok"] = (j["status"] == "succeeded") if expect == "succeeded" else (j["status"] == "failed" and f"failed:{code}" == expect)
     for sim in case.get("faults", []):
-        cl.post(f"/api/v1/simulation/faults/{sim['instance']}", json={k: False for k in sim if k != "instance"})
+        cl.post(f"/api/v1/simulation/faults/{sim['instance']}", json={k: False for k in sim if k != "instance"},
+                headers={"Idempotency-Key": _key("fault-off", run_id, name + sim["instance"])})
     return out
 
 

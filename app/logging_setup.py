@@ -16,7 +16,11 @@ _SECRET_PATTERNS = [
 ]
 
 
+_URL_QUERY = re.compile(r"(https?://[^\s\"'<>?#]+)[?#][^\s\"'<>]*")
+
+
 def redact(text: str) -> str:
+    text = _URL_QUERY.sub(lambda m: f"{m.group(1)}?[REDACTED]", text)  # query strings/fragments may carry tokens
     text = _SECRET_PATTERNS[0].sub(lambda m: f"{m.group(1)}{m.group(2)}[REDACTED]", text)
     text = _SECRET_PATTERNS[1].sub(lambda m: f"{m.group(1)}[REDACTED]", text)
     return text
